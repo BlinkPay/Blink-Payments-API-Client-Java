@@ -42,7 +42,7 @@ public enum Bank {
   
   WESTPAC("Westpac"),
   
-  KIWI_BANK("KiwiBank"),
+  KIWI_BANK("Kiwibank"),
   
   PNZ("PNZ"),
   
