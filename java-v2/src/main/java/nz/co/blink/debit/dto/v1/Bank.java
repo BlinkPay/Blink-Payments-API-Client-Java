@@ -43,10 +43,12 @@ public enum Bank {
   WESTPAC("Westpac"),
   
   KIWI_BANK("Kiwibank"),
-  
+
+  NZHL("NZHL"),
+
   PNZ("PNZ"),
-  
-  CYBERSOURCE("Cybersource");
+
+  CARD("Card");
 
   private String value;
 

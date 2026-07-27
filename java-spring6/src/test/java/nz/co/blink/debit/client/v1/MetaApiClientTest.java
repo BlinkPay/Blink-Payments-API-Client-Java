@@ -190,8 +190,8 @@ class MetaApiClientTest {
                 .redirectFlow(new BankmetadataRedirectFlow()
                         .enabled(false));
 
-        BankMetadata cybersource = new BankMetadata()
-                .name(Bank.CYBERSOURCE)
+        BankMetadata card = new BankMetadata()
+                .name(Bank.CARD)
                 .features(new BankmetadataFeatures()
                         .cardPayment(new BankmetadataFeaturesCardPayment()
                                 .enabled(true)
@@ -208,7 +208,7 @@ class MetaApiClientTest {
         when(requestHeadersSpec.headers(any(Consumer.class))).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.accept(MediaType.APPLICATION_JSON)).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.exchangeToFlux(any(Function.class)))
-                .thenReturn(Flux.just(bnz, pnz, westpac, asb, anz, cybersource));
+                .thenReturn(Flux.just(bnz, pnz, westpac, asb, anz, card));
 
         Flux<BankMetadata> actual = client.getMeta();
 
@@ -225,6 +225,6 @@ class MetaApiClientTest {
                 .verifyComplete();
         assertThat(set)
                 .hasSize(6)
-                .containsExactlyInAnyOrder(bnz, pnz, westpac, asb, anz, cybersource);
+                .containsExactlyInAnyOrder(bnz, pnz, westpac, asb, anz, card);
     }
 }
