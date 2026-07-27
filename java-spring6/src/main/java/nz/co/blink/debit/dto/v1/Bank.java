@@ -42,12 +42,14 @@ public enum Bank {
 
     KIWIBANK("Kiwibank"),
 
-    CYBERSOURCE("Cybersource"),
+    NZHL("NZHL"),
 
     /**
      * The Payments NZ generic sandbox bank powered by Middleware NZ. FOR SANDBOX PURPOSES ONLY.
      */
-    PNZ("PNZ");
+    PNZ("PNZ"),
+
+    CARD("Card");
 
     private final String value;
 

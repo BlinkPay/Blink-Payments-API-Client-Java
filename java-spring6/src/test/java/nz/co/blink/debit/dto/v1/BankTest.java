@@ -9,7 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Verifies the {@link Bank} enum wire values, in particular the Kiwibank fix (BDL-1261).
+ * Verifies the {@link Bank} enum wire values, including the Kiwibank fix (BDL-1261) and the
+ * NZHL/Card enum reconciliation (BDL-1258).
  */
 class BankTest {
 
@@ -51,6 +52,30 @@ class BankTest {
     @Test
     void testFromValueRejectsOldWireValue() {
         assertThatThrownBy(() -> Bank.fromValue("KiwiBank"))
+                .isInstanceOf(BlinkInvalidValueException.class);
+    }
+
+    // ===== NZHL and Card enum reconciliation (BDL-1258) =====
+
+    @Test
+    void testNzhlSerialisesToCorrectWireValue() throws Exception {
+        assertThat(objectMapper.writeValueAsString(Bank.NZHL)).isEqualTo("\"NZHL\"");
+    }
+
+    @Test
+    void testCardSerialisesToCorrectWireValue() throws Exception {
+        assertThat(objectMapper.writeValueAsString(Bank.CARD)).isEqualTo("\"Card\"");
+    }
+
+    @Test
+    void testFromValueResolvesNzhlAndCardWireValues() throws BlinkInvalidValueException {
+        assertThat(Bank.fromValue("NZHL")).isEqualTo(Bank.NZHL);
+        assertThat(Bank.fromValue("Card")).isEqualTo(Bank.CARD);
+    }
+
+    @Test
+    void testFromValueRejectsRetiredCybersourceValue() {
+        assertThatThrownBy(() -> Bank.fromValue("Cybersource"))
                 .isInstanceOf(BlinkInvalidValueException.class);
     }
 }

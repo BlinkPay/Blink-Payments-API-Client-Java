@@ -70,7 +70,7 @@ class MetaApiClientIntegrationTest {
     @Test
     @DisplayName("Verify that bank metadata is retrieved")
     void getMeta() {
-        // Sandbox returns 3 banks: ASB, PNZ, and Cybersource
+        // Sandbox returns 3 banks: ASB, PNZ, and Card (formerly Cybersource)
         BankMetadata pnz = new BankMetadata()
                 .name(Bank.PNZ)
                 .paymentLimit(new Amount()
@@ -119,8 +119,8 @@ class MetaApiClientIntegrationTest {
                         .enabled(true)
                         .requestTimeout("PT10M"));
 
-        BankMetadata cybersource = new BankMetadata()
-                .name(Bank.CYBERSOURCE)
+        BankMetadata card = new BankMetadata()
+                .name(Bank.CARD)
                 .features(new BankmetadataFeatures()
                         .cardPayment(new BankmetadataFeaturesCardPayment()
                                 .enabled(true)
