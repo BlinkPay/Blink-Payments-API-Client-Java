@@ -24,22 +24,22 @@ class BankTest {
 
     @Test
     void testKiwibankSerialisesToCorrectWireValue() throws Exception {
-        assertThat(objectMapper.writeValueAsString(Bank.KIWI_BANK)).isEqualTo("\"Kiwibank\"");
+        assertThat(objectMapper.writeValueAsString(Bank.KIWIBANK)).isEqualTo("\"Kiwibank\"");
     }
 
     @Test
     void testKiwibankGetValueReturnsCorrectWireValue() {
-        assertThat(Bank.KIWI_BANK.getValue()).isEqualTo("Kiwibank");
+        assertThat(Bank.KIWIBANK.getValue()).isEqualTo("Kiwibank");
     }
 
     @Test
     void testKiwibankDeserialisesFromCorrectWireValue() throws Exception {
-        assertThat(objectMapper.readValue("\"Kiwibank\"", Bank.class)).isEqualTo(Bank.KIWI_BANK);
+        assertThat(objectMapper.readValue("\"Kiwibank\"", Bank.class)).isEqualTo(Bank.KIWIBANK);
     }
 
     @Test
     void testFromValueResolvesCorrectWireValue() {
-        assertThat(Bank.fromValue("Kiwibank")).isEqualTo(Bank.KIWI_BANK);
+        assertThat(Bank.fromValue("Kiwibank")).isEqualTo(Bank.KIWIBANK);
     }
 
     @Test

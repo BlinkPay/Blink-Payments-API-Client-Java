@@ -34,8 +34,8 @@
     </scm>
 
     <properties>
-        <!-- Version property - defaults to 2.0.0 for standalone builds, overridden by parent reactor -->
-        <revision>2.0.0</revision>
+        <!-- Version property - defaults to 2.1.0 for standalone builds, overridden by parent reactor -->
+        <revision>2.1.0</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
