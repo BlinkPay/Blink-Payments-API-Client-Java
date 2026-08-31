@@ -21,26 +21,27 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
-        <!-- Spring dependencies -->
-        <spring.boot.version>3.5.7</spring.boot.version>
-        <spring.security.version>6.5.6</spring.security.version>
-        <spring.cloud.starter.circuitbreaker.reactor.resilience4j.version>3.3.0</spring.cloud.starter.circuitbreaker.reactor.resilience4j.version>
+        <!-- Spring dependencies (Spring Boot 3.x / Spring Framework 6.x line) -->
+        <spring.boot.version>3.5.16</spring.boot.version>
+        <spring.security.version>6.5.11</spring.security.version>
+        <spring.cloud.starter.circuitbreaker.reactor.resilience4j.version>3.3.3</spring.cloud.starter.circuitbreaker.reactor.resilience4j.version>
 
         <!-- Library dependencies -->
-        <lombok.version>1.18.42</lombok.version>
-        <commons.lang.version>3.19.0</commons.lang.version>
-        <commons.collections.version>4.5.0</commons.collections.version>
-        <netty.version>4.2.7.Final</netty.version>
-        <slf4j.version>2.0.17</slf4j.version>
-        <logback.version>1.5.20</logback.version>
-        <jackson.version>2.20.1</jackson.version>
-        <java.jwt.version>4.5.0</java.jwt.version>
-        <swagger.version>2.2.40</swagger.version>
+        <lombok.version>1.18.46</lombok.version>
+        <snakeyaml.version>2.7</snakeyaml.version>
+        <commons.lang.version>3.20.0</commons.lang.version>
+        <commons.collections.version>4.6.0</commons.collections.version>
+        <netty.version>4.2.17.Final</netty.version>
+        <slf4j.version>2.0.18</slf4j.version>
+        <logback.version>1.6.3</logback.version>
+        <jackson.version>2.22.2</jackson.version>
+        <java.jwt.version>4.6.0</java.jwt.version>
+        <swagger.version>2.2.54</swagger.version>
 
         <!-- Test dependencies -->
-        <reactor.test.version>3.7.11</reactor.test.version>
-        <junit.version>6.0.1</junit.version>
-        <assertj.version>3.27.6</assertj.version>
+        <reactor.test.version>3.7.19</reactor.test.version>
+        <junit.version>6.1.3</junit.version>
+        <assertj.version>3.27.7</assertj.version>
 
         <!-- Sonar settings -->
         <sonar.inclusions>src/main/**</sonar.inclusions>
@@ -52,7 +53,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.42</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -60,22 +61,22 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>2.5</version>
+            <version>${snakeyaml.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.19.0</version>
+            <version>${commons.lang.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.5.0</version>
+            <version>${commons.collections.version}</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns</artifactId>
-            <version>4.2.7.Final</version>
+            <version>${netty.version}</version>
         </dependency>
 
         <!-- Spring dependencies (provided scope - user must supply Spring Boot 3.x) -->
@@ -117,6 +118,18 @@
             <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
             <version>${spring.cloud.starter.circuitbreaker.reactor.resilience4j.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Jackson dependencies (used directly by DTOs; java-jwt 4.6.0 only provides Jackson at runtime scope) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <!-- Swagger dependencies -->
@@ -220,7 +233,7 @@
         <profile>
             <id>versioning</id>
             <properties>
-                <revision>2.1.0</revision>
+                <revision>2.1.1</revision>
             </properties>
         </profile>
     </profiles>
