@@ -98,7 +98,8 @@ jobs:
       - name: Run Sonar on blink-debit-api-client-java to inspect code
         run: >
           SPRING_PROFILES_ACTIVE=test
-          mvn -B -ntp -pl .,java-v2 verify sonar:sonar
+          mvn -B -ntp -pl .,java-v2 verify
+          org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar
           -DskipTests
           -Dgpg.skip
           -Dsonar.projectKey=blink-debit-api-client-java
@@ -116,7 +117,8 @@ jobs:
       - name: Run Sonar on blink-debit-api-client-java-spring6 to inspect code
         run: >
           SPRING_PROFILES_ACTIVE=test
-          mvn -B -ntp -pl .,java-spring6 verify sonar:sonar
+          mvn -B -ntp -pl .,java-spring6 verify
+          org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar
           -DskipTests
           -Dgpg.skip
           -Dsonar.projectKey=blink-debit-api-client-java-spring6
