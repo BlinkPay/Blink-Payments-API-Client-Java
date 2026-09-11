@@ -61,37 +61,6 @@ jobs:
           BLINKPAY_CLIENT_ID: ${{ secrets.CLIENT_ID }}
           BLINKPAY_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
-  snyk:
-    # Snyk test quota is limited, so only scan when merging to master
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-
-      - name: Set up 64-bit Corretto 21
-        uses: actions/setup-java@v5
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-          architecture: x64
-          cache: maven
-
-      - name: Set up Node.js 24
-        uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-
-      - name: Run Snyk to check for vulnerabilities
-        run: |
-          npm install -g snyk
-          snyk monitor --org=blinkpay-zw9 --maven-aggregate-project
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
   sonar:
     runs-on: ubuntu-latest
 
