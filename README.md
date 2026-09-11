@@ -1,3 +1,5 @@
+![BlinkPay](https://raw.githubusercontent.com/BlinkPay/Blink-Payments-API-Client-Java/master/.github/assets/banner.png)
+
 # Blink Payments API Client for Java
 [![CI](https://github.com/BlinkPay/Blink-Debit-API-Client-Java/actions/workflows/maven-build.yml/badge.svg)](https://github.com/BlinkPay/Blink-Debit-API-Client-Java/actions/workflows/maven-build.yml)
 

@@ -233,7 +233,7 @@
         <profile>
             <id>versioning</id>
             <properties>
-                <revision>2.1.1</revision>
+                <revision>2.1.2</revision>
             </properties>
         </profile>
     </profiles>

@@ -1,0 +1,47 @@
+<ruleset xmlns="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0 https://www.mojohaus.org/versions/versions-model/xsd/rule-2.0.0.xsd">
+    <ignoreVersions>
+        <!-- Ignore common non-final version patterns -->
+        <ignoreVersion type="regex">.*[.-]RC\d*</ignoreVersion>
+        <ignoreVersion type="regex">.*[.-]M\d*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*[.-]alpha\d*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*[.-]beta\d*</ignoreVersion>
+        <ignoreVersion type="regex">.*[.-]preview\d*</ignoreVersion>
+        <ignoreVersion type="regex">.*[.-]pr\d*</ignoreVersion>
+        <ignoreVersion type="regex">.*SNAPSHOT</ignoreVersion>
+        <ignoreVersion type="regex">.*[.-]ea\d*</ignoreVersion>
+    </ignoreVersions>
+    <rules>
+        <!-- java-spring6 targets Spring Boot 3.x / Spring Framework 6.x — ignore the Boot 4 / Framework 7 generation -->
+        <rule groupId="org.springframework.boot">
+            <ignoreVersions>
+                <ignoreVersion type="regex">[4-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <rule groupId="org.springframework.security">
+            <ignoreVersions>
+                <ignoreVersion type="regex">[7-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <!-- Spring Cloud 2025.0.x (circuit breaker 3.x) is the last train for Boot 3.x -->
+        <rule groupId="org.springframework.cloud">
+            <ignoreVersions>
+                <ignoreVersion type="regex">[4-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <!-- Reactor 3.7.x pairs with Spring Boot 3.5; 3.8+ belongs to Boot 4 -->
+        <rule groupId="io.projectreactor">
+            <ignoreVersions>
+                <ignoreVersion type="regex">3\.([89]|\d{2,})\..*</ignoreVersion>
+                <ignoreVersion type="regex">[4-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+        <!-- Netty 5 is experimental -->
+        <rule groupId="io.netty">
+            <ignoreVersions>
+                <ignoreVersion type="regex">[5-9].*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+    </rules>
+</ruleset>
