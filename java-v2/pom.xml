@@ -30,7 +30,7 @@
     </developers>
 
     <scm>
-        <url>https://github.com/BlinkPay/Blink-Debit-API-Client-Java</url>
+        <url>https://github.com/BlinkPay/Blink-Payments-API-Client-Java</url>
     </scm>
 
     <properties>

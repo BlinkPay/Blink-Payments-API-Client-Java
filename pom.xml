@@ -29,7 +29,7 @@
     </developers>
 
     <scm>
-        <url>https://github.com/BlinkPay/Blink-Debit-API-Client-Java</url>
+        <url>https://github.com/BlinkPay/Blink-Payments-API-Client-Java</url>
     </scm>
 
     <modules>
@@ -43,6 +43,9 @@
 
         <!-- Encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Rules for versions-maven-plugin (mvn versions:display-dependency-updates) -->
+        <maven.version.rules>file://${maven.multiModuleProjectDirectory}/version-rules.xml</maven.version.rules>
     </properties>
 
     <!-- No shared dependencies - each module manages its own dependencies -->

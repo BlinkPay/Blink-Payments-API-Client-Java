@@ -385,7 +385,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 ## Support
 
 - **Documentation**: See [CLAUDE.md](./CLAUDE.md) for technical details
-- **Issues**: [GitHub Issues](https://github.com/BlinkPay/Blink-Debit-API-Client-Java/issues)
+- **Issues**: [GitHub Issues](https://github.com/BlinkPay/Blink-Payments-API-Client-Java/issues)
 - **Contact**: sysadmin@blinkpay.co.nz
 
 ## License
