@@ -62,6 +62,8 @@ jobs:
           BLINKPAY_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
   snyk:
+    # Snyk test quota is limited, so only scan when merging to master
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
 
     steps:
