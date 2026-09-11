@@ -8,14 +8,14 @@
 [![Maven Central](https://img.shields.io/maven-central/v/nz.co.blinkpay/blink-debit-api-client-java.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/nz.co.blinkpay/blink-debit-api-client-java)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java)
-[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Payments-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java)
+[![Snyk security](https://img.shields.io/badge/Snyk_security-monitored-9043C6)](https://app.snyk.io/org/blinkpay-zw9/project/5536e3fc-4cbc-4c19-9c21-cbccf8d501eb)
 
 ---
 ## blink-debit-api-client-java-spring6
 [![Maven Central](https://img.shields.io/maven-central/v/nz.co.blinkpay/blink-debit-api-client-java-spring6.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/nz.co.blinkpay/blink-debit-api-client-java-spring6)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java-spring6&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java-spring6)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java-spring6&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java-spring6)
-[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Payments-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java-spring6)
+[![Snyk security](https://img.shields.io/badge/Snyk_security-monitored-9043C6)](https://app.snyk.io/org/blinkpay-zw9/project/5fb9b74e-67be-4f6b-aa14-fc2f99de54f9)
 
 # Table of Contents
 1. [Introduction](#introduction)
