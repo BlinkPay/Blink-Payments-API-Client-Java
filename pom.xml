@@ -44,7 +44,10 @@
         <!-- Encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Rules for versions-maven-plugin (mvn versions:display-dependency-updates) -->
+        <!-- Rules for versions-maven-plugin (mvn versions:display-dependency-updates).
+             The empty .mvn/maven.config at the repository root anchors
+             ${maven.multiModuleProjectDirectory} there, so the rules resolve even when
+             Maven is started from inside a module directory. -->
         <maven.version.rules>file://${maven.multiModuleProjectDirectory}/version-rules.xml</maven.version.rules>
     </properties>
 

@@ -53,6 +53,12 @@
         <assertj.version>3.27.7</assertj.version>
         <mockito.version>5.23.0</mockito.version>
         <logback.version>1.6.3</logback.version>
+
+        <!-- Rules for versions-maven-plugin (mvn versions:display-dependency-updates).
+             The empty .mvn/maven.config at the repository root anchors
+             ${maven.multiModuleProjectDirectory} there, so the rules resolve even when
+             Maven is started from inside a module directory. -->
+        <maven.version.rules>file://${maven.multiModuleProjectDirectory}/version-rules.xml</maven.version.rules>
     </properties>
 
     <dependencies>

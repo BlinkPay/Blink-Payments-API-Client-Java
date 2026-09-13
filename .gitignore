@@ -22,7 +22,7 @@ dependency-tree.txt
 *-dependency-tree.txt
 mvnw
 mvnw.cmd
-.mvn/
+.mvn/wrapper/
 
 # OpenAPI Generator
 .openapi-generator/
