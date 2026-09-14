@@ -233,10 +233,8 @@ class EnduringConsentsApiClientIntegrationTest {
                     .isNotNull()
                     .extracting(Amount::getCurrency, Amount::getTotal)
                     .containsExactly(Amount.CurrencyEnum.NZD, "50.00");
-            assertThat(detail.getMaximumAmountPayment())
-                    .isNotNull()
-                    .extracting(Amount::getCurrency, Amount::getTotal)
-                    .containsExactly(Amount.CurrencyEnum.NZD, "50.00");
+            // this consent predates maximum_amount_payment, so it carries none; the field's
+            // round trip is covered by the tests that create their own enduring consent
         } catch (RuntimeException e) {
             assertThat(e.getCause())
                     .isInstanceOf(BlinkResourceNotFoundException.class)
