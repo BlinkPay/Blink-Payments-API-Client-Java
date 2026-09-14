@@ -25,7 +25,7 @@ jobs:
           cache: maven
 
       - name: Run unit tests
-        run: SPRING_PROFILES_ACTIVE=test mvn -B -ntp -Dgroups=unit test
+        run: SPRING_PROFILES_ACTIVE=test mvn -B -ntp test
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
@@ -82,14 +82,12 @@ jobs:
           SPRING_PROFILES_ACTIVE=test
           mvn -B -ntp -pl .,java-v2 verify
           org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar
-          -DskipTests
+          -DskipITs
           -Dgpg.skip
           -Dsonar.projectKey=blink-debit-api-client-java
           -Dsonar.organization=blinkpay
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.junit.reportPaths=target/surefire-reports
-          -Dsonar.coverage.plugin=jacoco
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/coverage-reports/jacoco-ut/jacoco.xml
           -Dsonar.projectName=blink-debit-api-client-java
         continue-on-error: true
         env:
@@ -101,14 +99,12 @@ jobs:
           SPRING_PROFILES_ACTIVE=test
           mvn -B -ntp -pl .,java-spring6 verify
           org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar
-          -DskipTests
+          -DskipITs
           -Dgpg.skip
           -Dsonar.projectKey=blink-debit-api-client-java-spring6
           -Dsonar.organization=blinkpay
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.junit.reportPaths=target/surefire-reports
-          -Dsonar.coverage.plugin=jacoco
-          -Dsonar.coverage.jacoco.xmlReportPaths=target/coverage-reports/jacoco-ut/jacoco.xml
           -Dsonar.projectName=blink-debit-api-client-java-spring6
         continue-on-error: true
         env:
