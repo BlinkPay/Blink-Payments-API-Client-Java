@@ -54,6 +54,13 @@
         <mockito.version>5.23.0</mockito.version>
         <logback.version>1.6.3</logback.version>
 
+        <!-- Sonar settings -->
+        <sonar.inclusions>src/main/**</sonar.inclusions>
+        <sonar.test.exclusions>src/test/**,src/integrationTest/**</sonar.test.exclusions>
+        <!-- DTOs are generated from the OpenAPI spec; exclude them from coverage so the
+             figure reflects hand-written code -->
+        <sonar.coverage.exclusions>src/main/java/nz/co/blink/debit/dto/v1/**</sonar.coverage.exclusions>
+
         <!-- Rules for versions-maven-plugin (mvn versions:display-dependency-updates).
              The empty .mvn/maven.config at the repository root anchors
              ${maven.multiModuleProjectDirectory} there, so the rules resolve even when
