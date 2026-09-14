@@ -582,14 +582,14 @@ class BlinkDebitClientIntegrationTest {
     @DisplayName("Verify that non-existent quick payment is handled")
     @Order(22)
     void awaitNonExistentQuickPaymentThenThrowRuntimeException() {
-        UUID consentId = UUID.randomUUID();
+        UUID quickPaymentId = UUID.randomUUID();
 
         BlinkResourceNotFoundException exception = catchThrowableOfType(BlinkResourceNotFoundException.class,
-                () -> client.awaitSuccessfulQuickPayment(consentId, 2));
+                () -> client.awaitSuccessfulQuickPayment(quickPaymentId, 2));
 
         assertThat(exception)
                 .isNotNull()
-                .hasMessage("Consent with ID [" + consentId + "] does not exist");
+                .hasMessage("Quick payment with ID [" + quickPaymentId + "] does not exist");
     }
 
     @Test
@@ -711,14 +711,14 @@ class BlinkDebitClientIntegrationTest {
     @DisplayName("Verify that non-existent quick payment is handled")
     @Order(25)
     void awaitNonExistentQuickPaymentThenThrowResourceNotFoundException() {
-        UUID consentId = UUID.randomUUID();
+        UUID quickPaymentId = UUID.randomUUID();
 
         BlinkResourceNotFoundException exception = catchThrowableOfType(BlinkResourceNotFoundException.class,
-                () -> client.awaitSuccessfulQuickPaymentOrThrowException(consentId, 2));
+                () -> client.awaitSuccessfulQuickPaymentOrThrowException(quickPaymentId, 2));
 
         assertThat(exception)
                 .isNotNull()
-                .hasMessage("Consent with ID [" + consentId + "] does not exist");
+                .hasMessage("Quick payment with ID [" + quickPaymentId + "] does not exist");
     }
 
     @Test

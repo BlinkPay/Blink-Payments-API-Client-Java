@@ -244,7 +244,7 @@ class QuickPaymentsApiClientIntegrationTest {
         } catch (RuntimeException e) {
             assertThat(e.getCause())
                     .isInstanceOf(BlinkResourceNotFoundException.class)
-                    .hasMessage("Consent with ID [057a08f7-4ee1-499d-8726-e4fe802d64fc] does not exist");
+                    .hasMessage("Quick payment with ID [057a08f7-4ee1-499d-8726-e4fe802d64fc] does not exist");
         }
     }
 
