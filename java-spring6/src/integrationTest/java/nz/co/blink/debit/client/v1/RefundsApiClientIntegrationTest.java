@@ -40,7 +40,7 @@ import nz.co.blink.debit.dto.v1.Refund;
 import nz.co.blink.debit.dto.v1.RefundDetail;
 import nz.co.blink.debit.dto.v1.RefundResponse;
 import nz.co.blink.debit.dto.v1.SingleConsentRequest;
-import nz.co.blink.debit.exception.BlinkNotImplementedException;
+import nz.co.blink.debit.exception.BlinkClientException;
 import nz.co.blink.debit.exception.BlinkServiceException;
 import nz.co.blink.debit.helpers.AccessTokenHandler;
 import org.junit.jupiter.api.DisplayName;
@@ -365,8 +365,9 @@ class RefundsApiClientIntegrationTest {
         assertThat(exception).isNotNull();
         assertThat(exception.getCause())
                 .isNotNull()
-                .isInstanceOf(BlinkNotImplementedException.class)
-                .hasMessage("Full refund is not yet implemented");
+                .isInstanceOf(BlinkClientException.class)
+                .hasMessageContaining("full_refund")
+                .hasMessageContaining("not yet supported");
     }
 
     @Test
@@ -442,7 +443,8 @@ class RefundsApiClientIntegrationTest {
         assertThat(exception).isNotNull();
         assertThat(exception.getCause())
                 .isNotNull()
-                .isInstanceOf(BlinkNotImplementedException.class)
-                .hasMessage("Partial refund is not yet implemented");
+                .isInstanceOf(BlinkClientException.class)
+                .hasMessageContaining("partial_refund")
+                .hasMessageContaining("not yet supported");
     }
 }

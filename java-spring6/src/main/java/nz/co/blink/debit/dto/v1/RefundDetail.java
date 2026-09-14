@@ -80,7 +80,10 @@ public class RefundDetail {
         }
     }
 
-    @JsonProperty("type")
+    // Write-only: RefundRequest carries @JsonTypeInfo(property = "type"), which writes the
+    // discriminator on serialisation. Without this the key is written twice and the API
+    // rejects the request. Keep this if the DTOs are regenerated.
+    @JsonProperty(value = "type", access = JsonProperty.Access.WRITE_ONLY)
     private TypeEnum type = null;
 
     public RefundDetail paymentId(UUID paymentId) {
