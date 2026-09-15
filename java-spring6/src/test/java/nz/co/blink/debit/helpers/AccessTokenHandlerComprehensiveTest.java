@@ -283,11 +283,7 @@ class AccessTokenHandlerComprehensiveTest {
     @Test
     @DisplayName("Should fetch a new token when the current one carries no expiry claim")
     void shouldFetchNewTokenWhenExpiryClaimIsMissing() throws BlinkServiceException {
-        String tokenWithoutExpiry = JWT.create()
-                .withIssuer("test-issuer")
-                .withSubject("test-subject")
-                .sign(Algorithm.HMAC256(SECRET));
-        handler.setAccessTokenAtomicReference(tokenWithoutExpiry);
+        handler.setAccessTokenAtomicReference(createTokenWithoutExpiry());
 
         String newToken = createToken(new Date(System.currentTimeMillis() + 3600000));
         AccessTokenResponse response = new AccessTokenResponse();
@@ -349,6 +345,53 @@ class AccessTokenHandlerComprehensiveTest {
         assertThat(second.isDisposed()).isTrue();
     }
 
+    @Test
+    @DisplayName("Should reuse a token with no expiry claim for the lifetime the server reported")
+    void shouldReuseTokenForReportedLifetime() throws BlinkServiceException {
+        AccessTokenResponse response = new AccessTokenResponse();
+        response.setAccessToken(createTokenWithoutExpiry());
+        response.setExpiresIn(3600);
+        when(oAuthApiClient.generateAccessToken(anyString()))
+                .thenReturn(Mono.just(response));
+
+        makeRequest(handler, UUID.randomUUID().toString());
+        makeRequest(handler, UUID.randomUUID().toString());
+
+        // The token carries no expiry claim, so expires_in is what keeps it in use
+        verify(oAuthApiClient, times(1)).generateAccessToken(anyString());
+    }
+
+    @Test
+    @DisplayName("Should refresh a token whose reported lifetime falls inside the refresh buffer")
+    void shouldRefreshTokenWhoseReportedLifetimeIsInsideRefreshBuffer() throws BlinkServiceException {
+        AccessTokenResponse response = new AccessTokenResponse();
+        response.setAccessToken(createTokenWithoutExpiry());
+        // 30 seconds of life left, which is inside the 60 second refresh buffer
+        response.setExpiresIn(30);
+        when(oAuthApiClient.generateAccessToken(anyString()))
+                .thenReturn(Mono.just(response));
+
+        makeRequest(handler, UUID.randomUUID().toString());
+        makeRequest(handler, UUID.randomUUID().toString());
+
+        verify(oAuthApiClient, times(2)).generateAccessToken(anyString());
+    }
+
+    @Test
+    @DisplayName("Should refresh a token that reports neither an expiry claim nor a lifetime")
+    void shouldRefreshTokenWithNoExpiryClaimAndNoReportedLifetime() throws BlinkServiceException {
+        AccessTokenResponse response = new AccessTokenResponse();
+        response.setAccessToken(createTokenWithoutExpiry());
+        when(oAuthApiClient.generateAccessToken(anyString()))
+                .thenReturn(Mono.just(response));
+
+        makeRequest(handler, UUID.randomUUID().toString());
+        makeRequest(handler, UUID.randomUUID().toString());
+
+        // Nothing says how long the token lives, so it is replaced rather than trusted
+        verify(oAuthApiClient, times(2)).generateAccessToken(anyString());
+    }
+
     private Mono<String> request(AccessTokenHandler handler, String requestId) {
         return WebClient.builder()
                 .filter(handler.setAccessToken(requestId))
@@ -387,5 +430,12 @@ class AccessTokenHandlerComprehensiveTest {
                 .withSubject("test-subject")
                 .withExpiresAt(expiryDate)
                 .sign(algorithm);
+    }
+
+    private String createTokenWithoutExpiry() {
+        return JWT.create()
+                .withIssuer("test-issuer")
+                .withSubject("test-subject")
+                .sign(Algorithm.HMAC256(SECRET));
     }
 }

@@ -23,11 +23,9 @@ package nz.co.blink.debit.helpers;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import lombok.extern.slf4j.Slf4j;
 import nz.co.blink.debit.client.v1.OAuthApiClient;
 import nz.co.blink.debit.dto.v1.AccessTokenResponse;
-import nz.co.blink.debit.exception.BlinkInvalidValueException;
-import nz.co.blink.debit.exception.BlinkServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,15 +44,34 @@ import java.util.concurrent.atomic.AtomicReference;
  * or if it has expired, this helper class will fetch a new one.
  */
 @Component
+@Slf4j
 public class AccessTokenHandler {
 
     private static final long TOKEN_REFRESH_BUFFER_SECONDS = 60;
 
     private final OAuthApiClient client;
 
-    private final AtomicReference<String> accessTokenAtomicReference = new AtomicReference<>();
+    private final AtomicReference<CachedToken> accessTokenAtomicReference = new AtomicReference<>();
 
     private final AtomicReference<Mono<AccessTokenResponse>> tokenFetchInProgress = new AtomicReference<>();
+
+    /**
+     * An access token paired with the instant it lapses, so that the two are always read together.
+     *
+     * @param accessToken the access token
+     * @param expiresAt   the expiry instant, or {@link Instant#EPOCH} if the lifetime is unknown
+     */
+    private record CachedToken(String accessToken, Instant expiresAt) {
+
+        /**
+         * Returns true while the token has enough life left to survive the request it is sent on.
+         *
+         * @return true if the token can still be sent
+         */
+        private boolean isUsable() {
+            return expiresAt.isAfter(Instant.now().plusSeconds(TOKEN_REFRESH_BUFFER_SECONDS));
+        }
+    }
 
     /**
      * Default constructor.
@@ -68,15 +85,49 @@ public class AccessTokenHandler {
 
     /**
      * FOR TEST PURPOSES ONLY.
-     * Stores the access token from the environment variable.
+     * Stores the access token from the environment variable. Such a token comes without a reported lifetime,
+     * so it is only reused if it carries an expiry claim of its own.
      *
      * @param accessToken the access token
      */
     @Value("${blinkpay.access.token:}")
     public void setAccessTokenAtomicReference(final String accessToken) {
         if (StringUtils.isNotBlank(accessToken)) {
-            accessTokenAtomicReference.set(accessToken);
+            accessTokenAtomicReference.set(new CachedToken(accessToken, expiryOf(accessToken, null)));
         }
+    }
+
+    /**
+     * Works out when an access token lapses: the expiry claim if it carries one, otherwise the lifetime the
+     * server reported alongside it. A token whose lifetime cannot be established is treated as already expired
+     * so that it is replaced rather than trusted indefinitely.
+     *
+     * @param accessToken the access token
+     * @param expiresIn   the lifetime in seconds reported by the server, if any
+     * @return the expiry {@link Instant}
+     */
+    private static Instant expiryOf(final String accessToken, final Integer expiresIn) {
+        try {
+            Date expiresAt = JWT.decode(accessToken).getExpiresAt();
+            if (expiresAt != null) {
+                return expiresAt.toInstant();
+            }
+        } catch (JWTDecodeException e) {
+            log.warn("Access token cannot be decoded and will be replaced on the next request");
+            return Instant.EPOCH;
+        }
+
+        if (expiresIn == null) {
+            log.warn("Access token has no expiry claim and no expires_in, so it will be replaced on the next request");
+            return Instant.EPOCH;
+        }
+        if (expiresIn <= 0) {
+            log.warn("Access token has no expiry claim and a non-positive expires_in of {}s", expiresIn);
+            return Instant.EPOCH;
+        }
+
+        log.debug("Access token has no expiry claim, using expires_in of {}s", expiresIn);
+        return Instant.now().plusSeconds(expiresIn);
     }
 
     /**
@@ -122,26 +173,16 @@ public class AccessTokenHandler {
      * @return the {@link ExchangeFilterFunction}
      */
     public ExchangeFilterFunction setAccessToken(final String requestId) {
-        String currentAccessToken = accessTokenAtomicReference.get();
-        if (StringUtils.isNotBlank(currentAccessToken)) {
-            try {
-                DecodedJWT jwt = JWT.decode(currentAccessToken);
-                Date expiresAt = jwt.getExpiresAt();
-                // Refresh ahead of expiry so a token cannot lapse in flight, and treat a token
-                // with no expiry claim as unusable rather than trusting it indefinitely.
-                if (expiresAt != null && expiresAt.toInstant()
-                        .isAfter(Instant.now().plusSeconds(TOKEN_REFRESH_BUFFER_SECONDS))) {
-                    return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                        String authorization = "Bearer " + currentAccessToken;
-                        ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
-                                .headers(headers -> headers.set(HttpHeaders.AUTHORIZATION, authorization))
-                                .build();
-                        return Mono.just(authorizedRequest);
-                    });
-                }
-            } catch (JWTDecodeException ignored) {
-                // fetch a new access token
-            }
+        CachedToken cachedToken = accessTokenAtomicReference.get();
+        // Refresh ahead of expiry so that a token cannot lapse in flight.
+        if (cachedToken != null && cachedToken.isUsable()) {
+            String authorization = "Bearer " + cachedToken.accessToken();
+            return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+                ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
+                        .headers(headers -> headers.set(HttpHeaders.AUTHORIZATION, authorization))
+                        .build();
+                return Mono.just(authorizedRequest);
+            });
         }
 
         Mono<AccessTokenResponse> accessTokenResponseMono = obtainAccessToken(requestId);
@@ -149,7 +190,8 @@ public class AccessTokenHandler {
         return ExchangeFilterFunction.ofRequestProcessor(clientRequest ->
                 accessTokenResponseMono.flatMap(accessTokenResponse -> {
                     String newAccessToken = accessTokenResponse.getAccessToken();
-                    accessTokenAtomicReference.set(newAccessToken);
+                    accessTokenAtomicReference.set(new CachedToken(newAccessToken,
+                            expiryOf(newAccessToken, accessTokenResponse.getExpiresIn())));
 
                     String authorization = "Bearer " + newAccessToken;
                     ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
