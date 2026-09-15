@@ -37,6 +37,7 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -46,6 +47,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Component
 public class AccessTokenHandler {
+
+    private static final long TOKEN_REFRESH_BUFFER_SECONDS = 60;
 
     private final OAuthApiClient client;
 
@@ -77,6 +80,41 @@ public class AccessTokenHandler {
     }
 
     /**
+     * Returns the in-flight token fetch, starting one if there is none.
+     * <p>
+     * Concurrent callers collapse onto a single request, which is released once it settles so that the
+     * next refresh goes back to the server instead of replaying the old response. A subscriber that
+     * cancels mid-flight also releases it, so a caller arriving in that window may start a second
+     * request; that costs a duplicate fetch rather than correctness.
+     *
+     * @param requestId the correlation ID
+     * @return the {@link Mono} of the {@link AccessTokenResponse}
+     */
+    private Mono<AccessTokenResponse> obtainAccessToken(final String requestId) {
+        while (true) {
+            Mono<AccessTokenResponse> inFlight = tokenFetchInProgress.get();
+            if (inFlight != null) {
+                return inFlight;
+            }
+
+            // The fetch has to be able to clear itself, so publish the reference it clears.
+            // An AtomicReference is required: doFinally runs on whichever thread terminates
+            // the fetch, so the write has to be visible to it.
+            AtomicReference<Mono<AccessTokenResponse>> published = new AtomicReference<>();
+            Mono<AccessTokenResponse> fetch = client.generateAccessToken(requestId)
+                    .cache() // Cache the result for concurrent subscribers
+                    .doFinally(signal -> tokenFetchInProgress.compareAndSet(published.get(), null));
+            published.set(fetch);
+
+            if (tokenFetchInProgress.compareAndSet(null, fetch)) {
+                return fetch;
+            }
+            // Another thread published first; retry and reuse its fetch. The discarded Mono is
+            // pure assembly - generateAccessToken defers, so nothing was sent.
+        }
+    }
+
+    /**
      * Sets the Authorization request header by reusing the access token or by replacing it with a new one
      * if it has expired. Thread-safe to prevent duplicate token fetches.
      *
@@ -88,7 +126,11 @@ public class AccessTokenHandler {
         if (StringUtils.isNotBlank(currentAccessToken)) {
             try {
                 DecodedJWT jwt = JWT.decode(currentAccessToken);
-                if (!jwt.getExpiresAt().before(new Date())) {
+                Date expiresAt = jwt.getExpiresAt();
+                // Refresh ahead of expiry so a token cannot lapse in flight, and treat a token
+                // with no expiry claim as unusable rather than trusting it indefinitely.
+                if (expiresAt != null && expiresAt.toInstant()
+                        .isAfter(Instant.now().plusSeconds(TOKEN_REFRESH_BUFFER_SECONDS))) {
                     return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
                         String authorization = "Bearer " + currentAccessToken;
                         ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
@@ -102,16 +144,7 @@ public class AccessTokenHandler {
             }
         }
 
-        // Get or create cached token fetch Mono to prevent duplicate requests
-        Mono<AccessTokenResponse> accessTokenResponseMono = tokenFetchInProgress.updateAndGet(existing -> {
-            if (existing != null) {
-                return existing;
-            }
-            // Create new token fetch Mono with caching
-            return client.generateAccessToken(requestId)
-                    .cache() // Cache the result for concurrent subscribers
-                    .doFinally(signal -> tokenFetchInProgress.compareAndSet(existing, null)); // Clear cache after completion
-        });
+        Mono<AccessTokenResponse> accessTokenResponseMono = obtainAccessToken(requestId);
 
         return ExchangeFilterFunction.ofRequestProcessor(clientRequest ->
                 accessTokenResponseMono.flatMap(accessTokenResponse -> {

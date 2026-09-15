@@ -38,7 +38,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
@@ -257,6 +259,109 @@ class AccessTokenHandlerComprehensiveTest {
 
         // Verify new token was fetched because the old one was expired
         verify(oAuthApiClient, times(1)).generateAccessToken(anyString());
+    }
+
+    @Test
+    @DisplayName("Should refresh a token that expires inside the refresh buffer")
+    void shouldRefreshTokenInsideRefreshBuffer() throws BlinkServiceException {
+        // 30 seconds of life left, which is inside the 60 second refresh buffer
+        String nearlyExpiredToken = createToken(new Date(System.currentTimeMillis() + 30000));
+        handler.setAccessTokenAtomicReference(nearlyExpiredToken);
+
+        String newToken = createToken(new Date(System.currentTimeMillis() + 3600000));
+        AccessTokenResponse response = new AccessTokenResponse();
+        response.setAccessToken(newToken);
+        when(oAuthApiClient.generateAccessToken(anyString()))
+                .thenReturn(Mono.just(response));
+
+        makeRequest(handler, UUID.randomUUID().toString());
+
+        // The token is still technically valid, but too close to expiry to send
+        verify(oAuthApiClient, times(1)).generateAccessToken(anyString());
+    }
+
+    @Test
+    @DisplayName("Should fetch a new token when the current one carries no expiry claim")
+    void shouldFetchNewTokenWhenExpiryClaimIsMissing() throws BlinkServiceException {
+        String tokenWithoutExpiry = JWT.create()
+                .withIssuer("test-issuer")
+                .withSubject("test-subject")
+                .sign(Algorithm.HMAC256(SECRET));
+        handler.setAccessTokenAtomicReference(tokenWithoutExpiry);
+
+        String newToken = createToken(new Date(System.currentTimeMillis() + 3600000));
+        AccessTokenResponse response = new AccessTokenResponse();
+        response.setAccessToken(newToken);
+        when(oAuthApiClient.generateAccessToken(anyString()))
+                .thenReturn(Mono.just(response));
+
+        makeRequest(handler, UUID.randomUUID().toString());
+
+        verify(oAuthApiClient, times(1)).generateAccessToken(anyString());
+    }
+
+    @Test
+    @DisplayName("Should fetch a second token rather than replaying the first fetch")
+    void shouldNotReplayACompletedTokenFetch() throws BlinkServiceException {
+        // The first fetch returns a token that is itself inside the refresh buffer, so the
+        // second request has to go back to the server rather than replay the cached fetch.
+        AccessTokenResponse firstResponse = new AccessTokenResponse();
+        firstResponse.setAccessToken(createToken(new Date(System.currentTimeMillis() + 30000)));
+        AccessTokenResponse secondResponse = new AccessTokenResponse();
+        secondResponse.setAccessToken(createToken(new Date(System.currentTimeMillis() + 3600000)));
+
+        when(oAuthApiClient.generateAccessToken(anyString()))
+                .thenReturn(Mono.just(firstResponse))
+                .thenReturn(Mono.just(secondResponse));
+
+        handler.setAccessTokenAtomicReference(createToken(new Date(System.currentTimeMillis() - 1000)));
+
+        makeRequest(handler, UUID.randomUUID().toString());
+        makeRequest(handler, UUID.randomUUID().toString());
+
+        verify(oAuthApiClient, times(2)).generateAccessToken(anyString());
+    }
+
+    @Test
+    @DisplayName("Should collapse callers arriving during a fetch onto that one token request")
+    void shouldCollapseConcurrentTokenFetches() {
+        // A sink lets the fetch stay in flight for as long as the test needs, so the collapse
+        // is asserted deterministically rather than by racing threads against a sleep.
+        Sinks.One<AccessTokenResponse> pending = Sinks.one();
+        AtomicInteger subscriptions = new AtomicInteger();
+        when(oAuthApiClient.generateAccessToken(anyString()))
+                .thenReturn(pending.asMono().doOnSubscribe(subscription -> subscriptions.incrementAndGet()));
+
+        // First caller starts the fetch and leaves it in flight
+        Disposable first = request(handler, UUID.randomUUID().toString()).subscribe();
+        // Second caller arrives before the first has completed
+        Disposable second = request(handler, UUID.randomUUID().toString()).subscribe();
+
+        AccessTokenResponse response = new AccessTokenResponse();
+        response.setAccessToken(createToken(new Date(System.currentTimeMillis() + 3600000)));
+        pending.tryEmitValue(response);
+
+        // Both callers were served, but only one request reached the server. Subscriptions are
+        // what count here: a caller that loses the publish race still assembles a Mono, and
+        // assembly sends nothing because generateAccessToken defers.
+        assertThat(subscriptions.get()).isEqualTo(1);
+        assertThat(first.isDisposed()).isTrue();
+        assertThat(second.isDisposed()).isTrue();
+    }
+
+    private Mono<String> request(AccessTokenHandler handler, String requestId) {
+        return WebClient.builder()
+                .filter(handler.setAccessToken(requestId))
+                .exchangeFunction(clientRequest ->
+                        Mono.just(ClientResponse.create(HttpStatus.OK)
+                                .header("Content-Type", "application/json")
+                                .body("{}")
+                                .build()))
+                .build()
+                .get()
+                .uri("http://localhost:8080/test")
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
     private void makeRequest(AccessTokenHandler handler, String requestId) {

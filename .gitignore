@@ -55,3 +55,4 @@ Thumbs.db
 .claude/
 repomix.config.json
 repomix-output.txt
+/.env
