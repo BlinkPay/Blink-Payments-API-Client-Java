@@ -1,19 +1,21 @@
+![BlinkPay](https://raw.githubusercontent.com/BlinkPay/Blink-Payments-API-Client-Java/master/.github/assets/banner.png)
+
 # Blink Payments API Client for Java
-[![CI](https://github.com/BlinkPay/Blink-Debit-API-Client-Java/actions/workflows/maven-build.yml/badge.svg)](https://github.com/BlinkPay/Blink-Debit-API-Client-Java/actions/workflows/maven-build.yml)
+[![CI](https://github.com/BlinkPay/Blink-Payments-API-Client-Java/actions/workflows/maven-build.yml/badge.svg)](https://github.com/BlinkPay/Blink-Payments-API-Client-Java/actions/workflows/maven-build.yml)
 
 ---
 ## blink-debit-api-client-java
 [![Maven Central](https://img.shields.io/maven-central/v/nz.co.blinkpay/blink-debit-api-client-java.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/nz.co.blinkpay/blink-debit-api-client-java)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java)
-[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Debit-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java)
+[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Payments-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java)
 
 ---
 ## blink-debit-api-client-java-spring6
 [![Maven Central](https://img.shields.io/maven-central/v/nz.co.blinkpay/blink-debit-api-client-java-spring6.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/nz.co.blinkpay/blink-debit-api-client-java-spring6)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java-spring6&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java-spring6)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java-spring6&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java-spring6)
-[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Debit-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java-spring6)
+[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Payments-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java-spring6)
 
 # Table of Contents
 1. [Introduction](#introduction)
@@ -1006,7 +1008,7 @@ Use `mvn dependency:tree` in each module directory to view full dependency trees
 ## Support
 
 - **Documentation**: See [CLAUDE.md](./CLAUDE.md) for repository-level technical details, or module-specific CLAUDE.md files in `java-v2/` and `java-spring6/` directories
-- **Issues**: [GitHub Issues](https://github.com/BlinkPay/Blink-Debit-API-Client-Java/issues)
+- **Issues**: [GitHub Issues](https://github.com/BlinkPay/Blink-Payments-API-Client-Java/issues)
 - **Contact**: sysadmin@blinkpay.co.nz
 
 ## Contributing
@@ -1032,34 +1034,35 @@ export BLINKPAY_CLIENT_ID="your-client-id"
 export BLINKPAY_CLIENT_SECRET="your-client-secret"
 ```
 
+Unit tests live in `src/test`; integration tests live in `src/integrationTest` and are run by
+failsafe at the `verify` phase. `-Dgpg.skip` avoids the artifact signing that `verify` would
+otherwise trigger.
+
 Then run the tests:
 
 ```bash
 # Run unit tests only
-mvn -B -ntp -Dgroups=unit test
-
-# Run integration tests only
-mvn -B -ntp -Dgroups=integration test
-
-# Run all tests
 mvn -B -ntp test
+
+# Run integration tests (runs the unit tests first)
+mvn -B -ntp verify -Dgpg.skip
 ```
 
 Or combine the environment variables in a single command:
 
 ```bash
 # Unit tests
-BLINKPAY_CLIENT_ID="your-client-id" BLINKPAY_CLIENT_SECRET="your-client-secret" mvn -B -ntp -Dgroups=unit test
-
-# All tests
 BLINKPAY_CLIENT_ID="your-client-id" BLINKPAY_CLIENT_SECRET="your-client-secret" mvn -B -ntp test
+
+# Integration tests
+BLINKPAY_CLIENT_ID="your-client-id" BLINKPAY_CLIENT_SECRET="your-client-secret" mvn -B -ntp verify -Dgpg.skip
 ```
 
 For the Spring SDK module specifically, navigate to the `java-spring6` directory first:
 
 ```bash
 cd java-spring6
-BLINKPAY_CLIENT_ID="your-client-id" BLINKPAY_CLIENT_SECRET="your-client-secret" mvn -B -ntp -Dgroups=unit test
+BLINKPAY_CLIENT_ID="your-client-id" BLINKPAY_CLIENT_SECRET="your-client-secret" mvn -B -ntp verify -Dgpg.skip
 ```
 
 #### Running Plain Java SDK Tests
@@ -1077,11 +1080,11 @@ Run the tests:
 ```bash
 # From project root - run v2 integration tests
 cd java-v2
-mvn verify
+mvn verify -Dgpg.skip
 
 # Or combine with environment variables
 BLINKPAY_DEBIT_URL="https://sandbox.debit.blinkpay.co.nz" \
 BLINKPAY_CLIENT_ID="your-client-id" \
 BLINKPAY_CLIENT_SECRET="your-client-secret" \
-mvn verify
+mvn verify -Dgpg.skip
 ```

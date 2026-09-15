@@ -22,7 +22,7 @@ dependency-tree.txt
 *-dependency-tree.txt
 mvnw
 mvnw.cmd
-.mvn/
+.mvn/wrapper/
 
 # OpenAPI Generator
 .openapi-generator/
@@ -55,3 +55,4 @@ Thumbs.db
 .claude/
 repomix.config.json
 repomix-output.txt
+/.env

@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import nz.co.blink.debit.client.v1.OAuthApiClient;
 import nz.co.blink.debit.config.BlinkDebitConfig;
+import nz.co.blink.debit.dto.v1.AccessTokenResponse;
 import nz.co.blink.debit.exception.BlinkInvalidValueException;
 import nz.co.blink.debit.exception.BlinkServiceException;
 import org.junit.jupiter.api.Test;
@@ -125,6 +126,38 @@ class AccessTokenManagerTest {
     }
 
     @Test
+    void testTokenWithoutExpiryTreatsNonPositiveExpiresInAsExpired() {
+        String tokenWithoutExpiry = JWT.create()
+                .withIssuer("test")
+                .sign(Algorithm.none());
+
+        // The server says the token is already dead, so it must not be cached for an hour
+        StubOAuthApiClient stub = new StubOAuthApiClient(0, tokenWithoutExpiry);
+        AccessTokenManager manager = new AccessTokenManager(stub);
+
+        manager.getAccessToken();
+        manager.getAccessToken();
+
+        assertThat(stub.getCallCount()).isEqualTo(2);
+    }
+
+    @Test
+    void testTokenWithoutExpiryRefreshesWhenExpiresInHasLapsed() {
+        String tokenWithoutExpiry = JWT.create()
+                .withIssuer("test")
+                .sign(Algorithm.none());
+
+        // expires_in is inside the refresh buffer, so every call fetches a new token
+        StubOAuthApiClient stub = new StubOAuthApiClient(1, tokenWithoutExpiry);
+        AccessTokenManager manager = new AccessTokenManager(stub);
+
+        manager.getAccessToken();
+        manager.getAccessToken();
+
+        assertThat(stub.getCallCount()).isEqualTo(2);
+    }
+
+    @Test
     void testInvalidJwtFormat() {
         StubOAuthApiClient stub = new StubOAuthApiClient("not-a-jwt-token");
         AccessTokenManager manager = new AccessTokenManager(stub);
@@ -211,7 +244,7 @@ class AccessTokenManagerTest {
     void testRefreshTokenFailure() {
         OAuthApiClient failingClient = new OAuthApiClient(null, createMockConfig(), null) {
             @Override
-            public String getAccessToken() throws BlinkServiceException {
+            public AccessTokenResponse generateAccessToken() throws BlinkServiceException {
                 throw new BlinkServiceException("OAuth server error");
             }
         };
@@ -228,7 +261,7 @@ class AccessTokenManagerTest {
     void testOAuthClientThrowsException() {
         OAuthApiClient throwingClient = new OAuthApiClient(null, createMockConfig(), null) {
             @Override
-            public String getAccessToken() {
+            public AccessTokenResponse generateAccessToken() {
                 throw new RuntimeException("Network error");
             }
         };
@@ -303,20 +336,29 @@ class AccessTokenManagerTest {
 
     private static class StubOAuthApiClient extends OAuthApiClient {
         private final String[] tokens;
+        private final Integer expiresIn;
         private final AtomicInteger callCount = new AtomicInteger(0);
 
         StubOAuthApiClient(String... tokens) {
+            this(null, tokens);
+        }
+
+        StubOAuthApiClient(Integer expiresIn, String... tokens) {
             super(null, createMockConfig(), null);
+            this.expiresIn = expiresIn;
             this.tokens = tokens;
         }
 
         @Override
-        public String getAccessToken() {
+        public AccessTokenResponse generateAccessToken() {
             int index = callCount.getAndIncrement();
-            if (index < tokens.length) {
-                return tokens[index];
-            }
-            return tokens[tokens.length - 1]; // Return last token if called more times
+            // Return the last token if called more times
+            String token = index < tokens.length ? tokens[index] : tokens[tokens.length - 1];
+
+            AccessTokenResponse response = new AccessTokenResponse();
+            response.setAccessToken(token);
+            response.setExpiresIn(expiresIn);
+            return response;
         }
 
         int getCallCount() {

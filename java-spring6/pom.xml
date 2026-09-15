@@ -46,6 +46,9 @@
         <!-- Sonar settings -->
         <sonar.inclusions>src/main/**</sonar.inclusions>
         <sonar.test.exclusions>src/test/**,src/integrationTest/**</sonar.test.exclusions>
+        <!-- DTOs are generated from the OpenAPI spec; exclude them from coverage so the
+             figure reflects hand-written code -->
+        <sonar.coverage.exclusions>src/main/java/nz/co/blink/debit/dto/v1/**</sonar.coverage.exclusions>
     </properties>
 
     <dependencies>
@@ -217,6 +220,68 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+                <configuration>
+                    <excludedGroups>integration</excludedGroups>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.5.4</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IntegrationTest.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>add-integration-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/integrationTest/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-integration-test-resource</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>add-test-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/integrationTest/resources</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Disable default deploy plugin, use central-publishing from parent -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -233,7 +298,7 @@
         <profile>
             <id>versioning</id>
             <properties>
-                <revision>2.1.1</revision>
+                <revision>2.1.2</revision>
             </properties>
         </profile>
     </profiles>

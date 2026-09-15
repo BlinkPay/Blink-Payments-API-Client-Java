@@ -30,12 +30,12 @@
     </developers>
 
     <scm>
-        <url>https://github.com/BlinkPay/Blink-Debit-API-Client-Java</url>
+        <url>https://github.com/BlinkPay/Blink-Payments-API-Client-Java</url>
     </scm>
 
     <properties>
-        <!-- Version property - defaults to 2.1.1 for standalone builds, overridden by parent reactor -->
-        <revision>2.1.1</revision>
+        <!-- Version property - defaults to 2.1.2 for standalone builds, overridden by parent reactor -->
+        <revision>2.1.2</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
@@ -53,6 +53,19 @@
         <assertj.version>3.27.7</assertj.version>
         <mockito.version>5.23.0</mockito.version>
         <logback.version>1.6.3</logback.version>
+
+        <!-- Sonar settings -->
+        <sonar.inclusions>src/main/**</sonar.inclusions>
+        <sonar.test.exclusions>src/test/**,src/integrationTest/**</sonar.test.exclusions>
+        <!-- DTOs are generated from the OpenAPI spec; exclude them from coverage so the
+             figure reflects hand-written code -->
+        <sonar.coverage.exclusions>src/main/java/nz/co/blink/debit/dto/v1/**</sonar.coverage.exclusions>
+
+        <!-- Rules for versions-maven-plugin (mvn versions:display-dependency-updates).
+             The empty .mvn/maven.config at the repository root anchors
+             ${maven.multiModuleProjectDirectory} there, so the rules resolve even when
+             Maven is started from inside a module directory. -->
+        <maven.version.rules>file://${maven.multiModuleProjectDirectory}/version-rules.xml</maven.version.rules>
     </properties>
 
     <dependencies>
@@ -205,6 +218,30 @@
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- JaCoCo Plugin - generate unit test coverage for SonarCloud -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.13</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <!-- Bound to test rather than the default verify so that both
+                             `mvn test` and `mvn verify` emit target/site/jacoco/jacoco.xml -->
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>

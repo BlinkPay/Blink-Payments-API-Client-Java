@@ -59,13 +59,16 @@ class OAuthApiClientIntegrationTest {
         assertThat(actual)
                 .isNotNull()
                 .extracting(AccessTokenResponse::getTokenType, AccessTokenResponse::getExpiresIn,
-                        AccessTokenResponse::getRefreshToken, AccessTokenResponse::getIdToken,
-                        AccessTokenResponse::getScope)
-                .containsExactly("Bearer", 3600, null, null, "create:payment view:payment create:single_consent"
-                        + " view:single_consent view:metadata create:enduring_consent view:enduring_consent"
-                        + " revoke:enduring_consent view:transaction create:quick_payment view:quick_payment"
-                        + " create:refund view:refund revoke:single_consent"
-                        + " manage:consents read:meta read:accounts read:balances read:party read:transactions");
+                        AccessTokenResponse::getRefreshToken, AccessTokenResponse::getIdToken)
+                .containsExactly("Bearer", 3600, null, null);
+        assertThat(actual.getScope()).isNotBlank();
+        assertThat(actual.getScope().trim().split("\\s+"))
+                .contains("create:payment", "view:payment", "create:single_consent", "view:single_consent",
+                        "view:metadata", "create:enduring_consent", "view:enduring_consent",
+                        "revoke:enduring_consent", "view:transaction", "create:quick_payment",
+                        "view:quick_payment", "create:refund", "view:refund", "revoke:single_consent",
+                        "manage:consents", "read:meta", "read:accounts", "read:balances", "read:party",
+                        "read:transactions");
         assertThat(actual.getAccessToken())
                 .isNotBlank()
                 .startsWith("ey");

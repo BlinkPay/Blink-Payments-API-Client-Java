@@ -3,6 +3,7 @@ package nz.co.blink.debit.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import nz.co.blink.debit.client.v1.OAuthApiClient;
+import nz.co.blink.debit.dto.v1.AccessTokenResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,8 @@ public class AccessTokenManager {
         synchronized (lock) {
             try {
                 log.debug("Fetching new access token from OAuth server");
-                String newToken = oauthApiClient.getAccessToken();
+                AccessTokenResponse response = oauthApiClient.generateAccessToken();
+                String newToken = response.getAccessToken();
 
                 // Decode to get expiry
                 DecodedJWT decodedJWT = JWT.decode(newToken);
@@ -66,10 +68,21 @@ public class AccessTokenManager {
                 if (expiresAt != null) {
                     this.tokenExpiresAt = expiresAt.toInstant();
                     log.debug("New access token expires at: {}", tokenExpiresAt);
+                } else if (response.getExpiresIn() != null) {
+                    // No exp claim, so fall back to the lifetime the server reported. A
+                    // non-positive lifetime means the token is already dead, so expire it now
+                    // and let the next call refresh rather than trusting it for an hour.
+                    int expiresIn = response.getExpiresIn();
+                    this.tokenExpiresAt = Instant.now().plusSeconds(Math.max(expiresIn, 0));
+                    if (expiresIn > 0) {
+                        log.debug("Access token has no expiry claim, using expires_in of {}s", expiresIn);
+                    } else {
+                        log.warn("Access token has no expiry claim and a non-positive expires_in of {}s",
+                                expiresIn);
+                    }
                 } else {
-                    // If no expiry, assume 1 hour (typical OAuth2 default)
                     this.tokenExpiresAt = Instant.now().plusSeconds(3600);
-                    log.warn("Access token has no expiry, assuming 1 hour");
+                    log.warn("Access token has no expiry claim and no expires_in, assuming 1 hour");
                 }
 
                 this.accessToken = newToken;
