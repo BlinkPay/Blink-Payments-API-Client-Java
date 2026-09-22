@@ -344,15 +344,13 @@ public class BlinkDebitClient implements AutoCloseable {
     }
 
     /**
-     * Create a refund with a caller-supplied idempotency key.
+     * Create a refund, reusing a caller-supplied idempotency key so a retry does not create a
+     * second refund.
      * Convenience method equivalent to getRefundsApi().createRefund().
-     *
-     * <p>Reuse the key from the original attempt when retrying a refund, and the API replays that
-     * refund rather than creating a second one.</p>
      *
      * @param request        the refund request
      * @param requestId      the request ID for tracing, generated when null or blank
-     * @param idempotencyKey the idempotency key, generated when null or blank
+     * @param idempotencyKey the idempotency key, generated when null, rejected when blank
      * @return the refund response
      * @throws nz.co.blink.debit.exception.BlinkServiceException if API call fails
      */

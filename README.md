@@ -970,8 +970,8 @@ that refund, and send the same key on every attempt:
 - a keyed request that fails before a refund is created releases the key, so retrying under it is
   not locked out
 
-A `201` means the refund was accepted, not that it was processed. Check the outcome with
-`getRefund(refundId)`.
+For a money-transfer refund a `201` means the request was accepted, not that the refund was
+processed. Check the outcome with `getRefund(refundId)`.
 
 ##### Plain Java SDK Example
 ```java
@@ -980,7 +980,6 @@ String idempotencyKey = UUID.randomUUID().toString();   // persist this with you
 AccountNumberRefundRequest request = (AccountNumberRefundRequest) new AccountNumberRefundRequest()
         .paymentId(paymentId);
 
-// Every attempt — including one from a later job run or after a restart — reuses the same key.
 RefundResponse refundResponse = client.createRefund(request, null, idempotencyKey);
 ```
 
