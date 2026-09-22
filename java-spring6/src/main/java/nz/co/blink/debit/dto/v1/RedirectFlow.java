@@ -96,7 +96,7 @@ public class RedirectFlow extends AuthFlowDetail implements OneOfauthFlowDetail 
     }
 
     /**
-     * Whether the redirect URI goes back to an app directly. If this value is true, the app will receive code and state parameters with this redirection. The app must pass these through to us at: https://debit.blinkpay.co.nz/bank/1.0/return?state={state}&code={code}, along with other query parameters like error. Applies only to Redirect flow.
+     * Whether the redirect URI goes back to an app directly. If this value is true, the app will receive code and state parameters with this redirection. The app must pass these through to us at: https://debit.blinkpay.co.nz/bank/1.0/return?state={state}&amp;code={code}, along with other query parameters like error. Applies only to Redirect flow.
      *
      * @return redirectToApp
      **/
