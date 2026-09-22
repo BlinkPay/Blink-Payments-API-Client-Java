@@ -20,8 +20,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,6 +36,7 @@ class HttpClientHelperTest {
     private static final String BASE_URL = "https://test.blinkpay.co.nz";
     private static final String ACCESS_TOKEN = "test-access-token";
     private static final String REQUEST_ID = "test-request-id";
+    private static final String CALLER_KEY = "caller-supplied-not-a-uuid";
 
     @Mock
     private HttpClient httpClient;
@@ -352,6 +356,104 @@ class HttpClientHelperTest {
         assertThatThrownBy(() -> httpHelper.getList("/test-list", TestResponse.class, REQUEST_ID))
                 .isInstanceOf(BlinkServiceException.class)
                 .hasMessageContaining("Failed to deserialize response body");
+    }
+
+    // ===== Idempotency Key Tests =====
+
+    @Test
+    void testPostSendsCallerSuppliedIdempotencyKeyUnchanged() throws Exception {
+        when(httpResponse.statusCode()).thenReturn(201);
+        when(httpResponse.body()).thenReturn(objectMapper.writeValueAsString(new TestResponse("ok")));
+        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                .thenReturn(httpResponse);
+
+        httpHelper.post("/test-path", new TestRequest("test-data"), TestResponse.class, REQUEST_ID, CALLER_KEY);
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(httpClient).send(requestCaptor.capture(), any(HttpResponse.BodyHandler.class));
+        assertThat(requestCaptor.getValue().headers().firstValue("idempotency-key")).hasValue(CALLER_KEY);
+    }
+
+    @Test
+    void testPostReusesCallerSuppliedIdempotencyKeyAcrossRetries() throws Exception {
+        HttpResponse<String> serverError = mock(HttpResponse.class);
+        when(serverError.statusCode()).thenReturn(503);
+        when(httpResponse.statusCode()).thenReturn(201);
+        when(httpResponse.body()).thenReturn(objectMapper.writeValueAsString(new TestResponse("ok")));
+        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                .thenReturn(serverError, serverError, httpResponse);
+
+        httpHelper.post("/test-path", new TestRequest("test-data"), TestResponse.class, REQUEST_ID, CALLER_KEY);
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(httpClient, times(3)).send(requestCaptor.capture(), any(HttpResponse.BodyHandler.class));
+        assertThat(requestCaptor.getAllValues())
+                .hasSize(3)
+                .allSatisfy(request ->
+                        assertThat(request.headers().firstValue("idempotency-key")).hasValue(CALLER_KEY));
+    }
+
+    @Test
+    void testPostReusesCallerSuppliedIdempotencyKeyAcrossTokenRefresh() throws Exception {
+        HttpResponse<String> unauthorised = mock(HttpResponse.class);
+        when(unauthorised.statusCode()).thenReturn(401);
+        when(httpResponse.statusCode()).thenReturn(201);
+        when(httpResponse.body()).thenReturn(objectMapper.writeValueAsString(new TestResponse("ok")));
+        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                .thenReturn(unauthorised, httpResponse);
+
+        httpHelper.post("/test-path", new TestRequest("test-data"), TestResponse.class, REQUEST_ID, CALLER_KEY);
+
+        verify(tokenManager).refreshToken();
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(httpClient, times(2)).send(requestCaptor.capture(), any(HttpResponse.BodyHandler.class));
+        assertThat(requestCaptor.getAllValues())
+                .hasSize(2)
+                .allSatisfy(request ->
+                        assertThat(request.headers().firstValue("idempotency-key")).hasValue(CALLER_KEY));
+    }
+
+    @Test
+    void testPostGeneratesADistinctIdempotencyKeyPerCallWhenNoneSupplied() throws Exception {
+        when(httpResponse.statusCode()).thenReturn(201);
+        when(httpResponse.body()).thenReturn(objectMapper.writeValueAsString(new TestResponse("ok")));
+        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                .thenReturn(httpResponse);
+
+        httpHelper.post("/test-path", new TestRequest("test-data"), TestResponse.class, REQUEST_ID);
+        httpHelper.post("/test-path", new TestRequest("test-data"), TestResponse.class, REQUEST_ID);
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(httpClient, times(2)).send(requestCaptor.capture(), any(HttpResponse.BodyHandler.class));
+        List<String> keys = requestCaptor.getAllValues().stream()
+                .map(request -> request.headers().firstValue("idempotency-key").orElseThrow())
+                .collect(Collectors.toList());
+        assertThat(keys).doesNotHaveDuplicates();
+        keys.forEach(key -> assertThatCode(() -> UUID.fromString(key)).doesNotThrowAnyException());
+    }
+
+    @Test
+    void testPostGeneratesAUuidWhenTheSuppliedIdempotencyKeyIsNull() throws Exception {
+        assertGeneratedUuidIsSentFor(null);
+    }
+
+    @Test
+    void testPostGeneratesAUuidWhenTheSuppliedIdempotencyKeyIsBlank() throws Exception {
+        assertGeneratedUuidIsSentFor("   ");
+    }
+
+    private void assertGeneratedUuidIsSentFor(String idempotencyKey) throws Exception {
+        when(httpResponse.statusCode()).thenReturn(201);
+        when(httpResponse.body()).thenReturn(objectMapper.writeValueAsString(new TestResponse("ok")));
+        when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                .thenReturn(httpResponse);
+
+        httpHelper.post("/test-path", new TestRequest("test-data"), TestResponse.class, REQUEST_ID, idempotencyKey);
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(httpClient).send(requestCaptor.capture(), any(HttpResponse.BodyHandler.class));
+        String sent = requestCaptor.getValue().headers().firstValue("idempotency-key").orElseThrow();
+        assertThatCode(() -> UUID.fromString(sent)).doesNotThrowAnyException();
     }
 
     // ===== Helper Classes =====
