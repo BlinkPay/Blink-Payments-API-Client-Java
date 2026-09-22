@@ -45,12 +45,41 @@ public class RefundsApiClient {
      * @throws BlinkServiceException if the request fails
      */
     public RefundResponse createRefund(RefundDetail request, String requestId) throws BlinkServiceException {
+        return createRefund(request, requestId, null);
+    }
+
+    /**
+     * Create a refund with custom request ID and idempotency key.
+     *
+     * <p>The idempotency key is the only de-duplication on refund creation. Pass the key from the
+     * original attempt when retrying, and the API replays that refund instead of creating a second
+     * one.</p>
+     *
+     * <p>A null key means "no key of my own" and one is generated, which is safe within a single
+     * call (the built-in retry reuses it) but not across calls. A blank key is rejected rather than
+     * replaced: it is almost always unset configuration, and silently substituting a generated key
+     * would leave the caller believing their retries de-duplicate when they do not.</p>
+     *
+     * @param request        the refund request
+     * @param requestId      the request ID for tracing, generated when null or blank
+     * @param idempotencyKey the idempotency key, generated when null, rejected when blank
+     * @return the refund response
+     * @throws BlinkServiceException if the request fails
+     */
+    public RefundResponse createRefund(RefundDetail request, String requestId, String idempotencyKey)
+            throws BlinkServiceException {
         if (request == null) {
             throw new BlinkInvalidValueException("Refund request must not be null");
         }
+        if (idempotencyKey != null && idempotencyKey.isBlank()) {
+            throw new BlinkInvalidValueException("Idempotency key must not be blank");
+        }
 
-        log.debug("Creating refund with request-id: {}", requestId);
-        return httpHelper.post(REFUNDS_PATH, request, RefundResponse.class, requestId);
+        String resolvedRequestId = (requestId == null || requestId.isBlank())
+                ? UUID.randomUUID().toString() : requestId;
+
+        log.debug("Creating refund with request-id: {}", resolvedRequestId);
+        return httpHelper.post(REFUNDS_PATH, request, RefundResponse.class, resolvedRequestId, idempotencyKey);
     }
 
     /**

@@ -298,7 +298,7 @@
         <profile>
             <id>versioning</id>
             <properties>
-                <revision>2.1.2</revision>
+                <revision>2.1.3</revision>
             </properties>
         </profile>
     </profiles>

@@ -53,8 +53,21 @@ public class HttpClientHelper {
      */
     public <T, R> R post(String path, T requestBody, Class<R> responseType, String requestId)
             throws BlinkServiceException {
-        String idempotencyKey = UUID.randomUUID().toString();
-        return postWithRetry(path, requestBody, responseType, requestId, idempotencyKey, 0);
+        return post(path, requestBody, responseType, requestId, null);
+    }
+
+    /**
+     * Execute a POST request with JSON body, custom request ID and caller-supplied idempotency key.
+     *
+     * <p>The key is what the API de-duplicates on, so a caller retrying at its own level should pass
+     * the key it used on the original attempt. A null key is generated, which is only safe within
+     * one call.</p>
+     */
+    public <T, R> R post(String path, T requestBody, Class<R> responseType, String requestId,
+                         String idempotencyKey) throws BlinkServiceException {
+        String key = (idempotencyKey == null || idempotencyKey.isBlank())
+                ? UUID.randomUUID().toString() : idempotencyKey;
+        return postWithRetry(path, requestBody, responseType, requestId, key, 0);
     }
 
     /**

@@ -16,10 +16,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,13 +44,15 @@ class RefundsApiClientUnitTest {
         RefundDetail request = mock(RefundDetail.class);
         RefundResponse expectedResponse = mock(RefundResponse.class);
 
-        when(httpHelper.post(eq("/payments/v1/refunds"), eq(request), eq(RefundResponse.class), anyString()))
+        when(httpHelper.post(eq("/payments/v1/refunds"), eq(request), eq(RefundResponse.class), anyString(),
+                isNull()))
                 .thenReturn(expectedResponse);
 
         RefundResponse result = client.createRefund(request);
 
         assertThat(result).isEqualTo(expectedResponse);
-        verify(httpHelper).post(eq("/payments/v1/refunds"), eq(request), eq(RefundResponse.class), anyString());
+        verify(httpHelper).post(eq("/payments/v1/refunds"), eq(request), eq(RefundResponse.class), anyString(),
+                isNull());
     }
 
     @Test
@@ -57,13 +61,15 @@ class RefundsApiClientUnitTest {
         RefundResponse expectedResponse = mock(RefundResponse.class);
         String customRequestId = "custom-request-id-123";
 
-        when(httpHelper.post("/payments/v1/refunds", request, RefundResponse.class, customRequestId))
+        when(httpHelper.post(eq("/payments/v1/refunds"), eq(request), eq(RefundResponse.class), eq(customRequestId),
+                isNull()))
                 .thenReturn(expectedResponse);
 
         RefundResponse result = client.createRefund(request, customRequestId);
 
         assertThat(result).isEqualTo(expectedResponse);
-        verify(httpHelper).post("/payments/v1/refunds", request, RefundResponse.class, customRequestId);
+        verify(httpHelper).post(eq("/payments/v1/refunds"), eq(request), eq(RefundResponse.class),
+                eq(customRequestId), isNull());
     }
 
     @Test
@@ -72,7 +78,7 @@ class RefundsApiClientUnitTest {
                 .isInstanceOf(BlinkInvalidValueException.class)
                 .hasMessageContaining("Refund request must not be null");
 
-        verify(httpHelper, never()).post(anyString(), any(), any(), anyString());
+        verify(httpHelper, never()).post(anyString(), any(), any(), anyString(), any());
     }
 
     @Test
@@ -81,19 +87,62 @@ class RefundsApiClientUnitTest {
                 .isInstanceOf(BlinkInvalidValueException.class)
                 .hasMessageContaining("Refund request must not be null");
 
-        verify(httpHelper, never()).post(anyString(), any(), any(), anyString());
+        verify(httpHelper, never()).post(anyString(), any(), any(), anyString(), any());
     }
 
     @Test
     void testCreateRefundHttpHelperThrowsException() throws BlinkServiceException {
         RefundDetail request = mock(RefundDetail.class);
 
-        when(httpHelper.post(anyString(), any(), any(), anyString()))
+        when(httpHelper.post(anyString(), any(), any(), anyString(), any()))
                 .thenThrow(new BlinkServiceException("API error"));
 
         assertThatThrownBy(() -> client.createRefund(request))
                 .isInstanceOf(BlinkServiceException.class)
                 .hasMessageContaining("API error");
+    }
+
+    @Test
+    void testCreateRefundPassesTheCallerSuppliedIdempotencyKeyThrough() throws BlinkServiceException {
+        RefundDetail request = mock(RefundDetail.class);
+        RefundResponse expectedResponse = mock(RefundResponse.class);
+        String idempotencyKey = "caller-supplied-not-a-uuid";
+
+        when(httpHelper.post(eq("/payments/v1/refunds"), eq(request), eq(RefundResponse.class), eq("rid-1"),
+                eq(idempotencyKey)))
+                .thenReturn(expectedResponse);
+
+        RefundResponse result = client.createRefund(request, "rid-1", idempotencyKey);
+
+        assertThat(result).isEqualTo(expectedResponse);
+        verify(httpHelper).post(eq("/payments/v1/refunds"), eq(request), eq(RefundResponse.class), eq("rid-1"),
+                eq(idempotencyKey));
+    }
+
+    @Test
+    void testCreateRefundGeneratesARequestIdWhenNoneIsSupplied() throws BlinkServiceException {
+        RefundDetail request = mock(RefundDetail.class);
+        String idempotencyKey = "caller-supplied-not-a-uuid";
+
+        when(httpHelper.post(anyString(), any(), any(), anyString(), anyString()))
+                .thenReturn(mock(RefundResponse.class));
+
+        client.createRefund(request, null, idempotencyKey);
+
+        ArgumentCaptor<String> requestIdCaptor = ArgumentCaptor.forClass(String.class);
+        verify(httpHelper).post(anyString(), any(), any(), requestIdCaptor.capture(), eq(idempotencyKey));
+        assertThatCode(() -> UUID.fromString(requestIdCaptor.getValue())).doesNotThrowAnyException();
+    }
+
+    @Test
+    void testCreateRefundRejectsABlankIdempotencyKeyWithoutCallingTheApi() throws BlinkServiceException {
+        RefundDetail request = mock(RefundDetail.class);
+
+        assertThatThrownBy(() -> client.createRefund(request, "rid-1", "   "))
+                .isInstanceOf(BlinkInvalidValueException.class)
+                .hasMessageContaining("Idempotency key must not be blank");
+
+        verify(httpHelper, never()).post(anyString(), any(), any(), anyString(), any());
     }
 
     // ===== getRefund Tests =====

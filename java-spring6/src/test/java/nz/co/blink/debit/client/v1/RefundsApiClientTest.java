@@ -45,10 +45,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -58,14 +60,19 @@ import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static nz.co.blink.debit.enums.BlinkDebitConstant.IDEMPOTENCY_KEY;
 import static nz.co.blink.debit.enums.BlinkDebitConstant.REFUNDS_PATH;
+import static nz.co.blink.debit.enums.BlinkDebitConstant.REQUEST_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -74,6 +81,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @Tag("unit")
 class RefundsApiClientTest {
+
+    private static final String CALLER_KEY = "caller-supplied-not-a-uuid";
 
     @Mock
     private WebClient.Builder webClientBuilder;
@@ -491,5 +500,104 @@ class RefundsApiClientTest {
                 .isNotNull()
                 .extracting(RefundResponse::getRefundId)
                 .isEqualTo(refundId);
+    }
+
+    @Test
+    @DisplayName("Verify that the caller-supplied idempotency key is sent unchanged")
+    @SuppressWarnings("unchecked")
+    void createRefundWithCallerSuppliedIdempotencyKey() throws BlinkServiceException {
+        HttpHeaders httpHeaders = captureRefundRequestHeaders(
+                request -> client.createRefund(request, "rid-1", CALLER_KEY));
+
+        assertThat(httpHeaders.getFirst(IDEMPOTENCY_KEY.getValue())).isEqualTo(CALLER_KEY);
+        assertThat(httpHeaders.getFirst(REQUEST_ID.getValue())).isEqualTo("rid-1");
+    }
+
+    @Test
+    @DisplayName("Verify that an idempotency key in the request headers map is sent unchanged")
+    @SuppressWarnings("unchecked")
+    void createRefundWithIdempotencyKeyInRequestHeaders() throws BlinkServiceException {
+        HttpHeaders httpHeaders = captureRefundRequestHeaders(
+                request -> client.createRefund(request, Map.of(IDEMPOTENCY_KEY.getValue(), CALLER_KEY)));
+
+        assertThat(httpHeaders.getFirst(IDEMPOTENCY_KEY.getValue())).isEqualTo(CALLER_KEY);
+    }
+
+    @Test
+    @DisplayName("Verify that an idempotency key is generated when none is supplied")
+    @SuppressWarnings("unchecked")
+    void createRefundWithoutIdempotencyKey() throws BlinkServiceException {
+        HttpHeaders httpHeaders = captureRefundRequestHeaders(request -> client.createRefund(request));
+
+        String sent = httpHeaders.getFirst(IDEMPOTENCY_KEY.getValue());
+        assertThat(sent).isNotBlank();
+        assertThatCode(() -> UUID.fromString(sent)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("Verify that a blank idempotency key in the request headers map is replaced by a generated one")
+    @SuppressWarnings("unchecked")
+    void createRefundWithBlankIdempotencyKeyInRequestHeaders() throws BlinkServiceException {
+        HttpHeaders httpHeaders = captureRefundRequestHeaders(
+                request -> client.createRefund(request, Map.of(IDEMPOTENCY_KEY.getValue(), " ")));
+
+        String sent = httpHeaders.getFirst(IDEMPOTENCY_KEY.getValue());
+        assertThat(sent).isNotBlank();
+        assertThatCode(() -> UUID.fromString(sent)).doesNotThrowAnyException();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", " "})
+    @DisplayName("Verify that a blank caller-supplied idempotency key is rejected")
+    void createRefundWithBlankIdempotencyKey(String idempotencyKey) {
+        AccountNumberRefundRequest request = (AccountNumberRefundRequest) new AccountNumberRefundRequest()
+                .paymentId(UUID.randomUUID());
+
+        BlinkInvalidValueException exception = catchThrowableOfType(BlinkInvalidValueException.class,
+                () -> client.createRefund(request, "rid-1", idempotencyKey).block());
+
+        assertThat(exception)
+                .isNotNull()
+                .hasMessage("Idempotency key must not be blank");
+    }
+
+    /**
+     * Runs a refund creation against the mocked WebClient chain and replays the captured
+     * {@code headers(Consumer)} argument onto a real {@link HttpHeaders}, so the assertions see the
+     * header values the client actually adds rather than the fact that it called {@code headers}.
+     */
+    @SuppressWarnings("unchecked")
+    private HttpHeaders captureRefundRequestHeaders(RefundCall call) throws BlinkServiceException {
+        ReflectionTestUtils.setField(client, "webClientBuilder", webClientBuilder);
+        ReflectionTestUtils.setField(client, "debitUrl", "http://localhost:8080");
+
+        when(webClientBuilder.clone()).thenReturn(webClientBuilder);
+        when(webClientBuilder.filter(any(ExchangeFilterFunction.class))).thenReturn(webClientBuilder);
+        when(webClientBuilder.build()).thenReturn(webClient);
+        when(webClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(REFUNDS_PATH.getValue())).thenReturn(requestBodySpec);
+        when(requestBodySpec.headers(any(Consumer.class))).thenReturn(requestBodySpec);
+        when(requestBodySpec.accept(MediaType.APPLICATION_JSON)).thenReturn(requestBodySpec);
+        when(requestBodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(requestBodySpec);
+        when(requestBodySpec.bodyValue(any(RefundDetail.class))).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.exchangeToMono(any(Function.class)))
+                .thenReturn(Mono.just(new RefundResponse().refundId(UUID.randomUUID())));
+
+        AccountNumberRefundRequest request = (AccountNumberRefundRequest) new AccountNumberRefundRequest()
+                .paymentId(UUID.randomUUID());
+
+        assertThat(call.apply(request).block()).isNotNull();
+
+        ArgumentCaptor<Consumer<HttpHeaders>> headersCaptor = ArgumentCaptor.forClass(Consumer.class);
+        verify(requestBodySpec).headers(headersCaptor.capture());
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        headersCaptor.getValue().accept(httpHeaders);
+        return httpHeaders;
+    }
+
+    @FunctionalInterface
+    private interface RefundCall {
+        Mono<RefundResponse> apply(RefundDetail request) throws BlinkServiceException;
     }
 }
