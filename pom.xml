@@ -39,7 +39,7 @@
 
     <properties>
         <!-- Version property for CI-friendly versioning -->
-        <revision>2.1.2</revision>
+        <revision>2.2.0</revision>
 
         <!-- Encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

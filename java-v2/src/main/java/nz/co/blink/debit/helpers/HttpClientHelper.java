@@ -53,8 +53,19 @@ public class HttpClientHelper {
      */
     public <T, R> R post(String path, T requestBody, Class<R> responseType, String requestId)
             throws BlinkServiceException {
-        String idempotencyKey = UUID.randomUUID().toString();
-        return postWithRetry(path, requestBody, responseType, requestId, idempotencyKey, 0);
+        return post(path, requestBody, responseType, requestId, null);
+    }
+
+    /**
+     * Execute a POST request with JSON body, custom request ID and caller-supplied idempotency key.
+     *
+     * <p>The key is what the API de-duplicates on, so a caller that retries at its own level should
+     * pass the same key it used on the original attempt. A null or blank key is generated instead.</p>
+     */
+    public <T, R> R post(String path, T requestBody, Class<R> responseType, String requestId,
+                         String idempotencyKey) throws BlinkServiceException {
+        return postWithRetry(path, requestBody, responseType, defaultIfBlank(requestId),
+                defaultIfBlank(idempotencyKey), 0);
     }
 
     /**
@@ -393,6 +404,14 @@ public class HttpClientHelper {
     private boolean isRetryableStatus(int statusCode) {
         return statusCode == 429 ||  // Too Many Requests
                (statusCode >= 500 && statusCode < 600);  // All 5xx Server Errors
+    }
+
+    /**
+     * Returns the value, or a fresh UUID when it is null or blank. A blank header value would be
+     * accepted by the builder and sent, which for an idempotency key means no de-duplication at all.
+     */
+    private static String defaultIfBlank(String value) {
+        return (value == null || value.trim().isEmpty()) ? UUID.randomUUID().toString() : value;
     }
 
     /**

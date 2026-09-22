@@ -28,13 +28,14 @@
 8. [Resource Management](#resource-management)
 9. [Polling and Timeout Behavior](#polling-and-timeout-behavior)
 10. [Correlation ID / Request ID](#correlation-id--request-id)
-11. [Full Examples](#full-examples)
-12. [Individual API Call Examples](#individual-api-call-examples)
-13. [Handling Payment Settlement](#handling-payment-settlement)
-14. [Dependencies](#dependencies)
-15. [Support](#support)
-16. [Contributing](#contributing)
-17. [Running Tests](#running-tests)
+11. [Idempotency](#idempotency)
+12. [Full Examples](#full-examples)
+13. [Individual API Call Examples](#individual-api-call-examples)
+14. [Handling Payment Settlement](#handling-payment-settlement)
+15. [Dependencies](#dependencies)
+16. [Support](#support)
+17. [Contributing](#contributing)
+18. [Running Tests](#running-tests)
 
 ## Introduction
 This SDK allows merchants with Java-based e-commerce sites to integrate with **Blink PayNow** (for one-off payments) and **Blink AutoPay** (for recurring payments).
@@ -476,9 +477,9 @@ Mono<Consent> consent = client.awaitAuthorisedSingleConsentOrThrowException(cons
 - **Payments**: Set appropriate timeout values based on expected settlement times (usually a few minutes)
 
 ## Correlation ID / Request ID
-An optional request ID can be added as the last argument to API calls. This serves as:
-- **Correlation ID** for tracing requests across systems
-- **Idempotency key** for Blink API calls
+An optional request ID can be added as the last argument to API calls. It is a **correlation ID**
+for tracing a request across systems, and nothing else — in particular it is *not* the idempotency
+key, and repeating it does not de-duplicate anything. See [Idempotency](#idempotency) for that.
 
 It will be generated automatically (UUID) if not provided.
 
@@ -496,6 +497,15 @@ CreateQuickPaymentResponse response = client.createQuickPayment(request, request
 ```java
 Mono<CreateQuickPaymentResponse> response = client.createQuickPayment(request, "my-custom-id-123");
 ```
+
+## Idempotency
+The SDK sends an `idempotency-key` header on every create call. By default it generates a fresh
+UUID per call, which makes the SDK's own internal retries safe but does nothing for a retry you
+drive yourself — a re-run job, a second call after a timeout, or a restarted process would each
+send a new key and so create a second record.
+
+To make your own retries safe, hold the key and pass the **same** one on every attempt. Refunds
+accept a caller-supplied key; see [Refund idempotency](#refund-idempotency).
 
 ## Full Examples
 
@@ -943,6 +953,48 @@ RefundResponse refundResponse = client.createRefund(request);
 ```java
 Refund refund = client.getRefund(refundId);
 ```
+
+#### Refund idempotency
+The `idempotency-key` header is the **only** de-duplication on refund creation. Several
+money-transfer refunds may be processed against one payment up to its total, so a blind retry of a
+refund sent without a key can refund the customer twice.
+
+Generate one key (a UUID) per refund you intend to make, persist it alongside your own record of
+that refund, and send the same key on every attempt:
+
+- same key + same payload — replays the original `201` with the original `refund_id`, and no second
+  refund is created
+- same key + a different payload — rejected with `409 BP702`
+- same key while an earlier request holding it is still in flight — rejected with `409 BP711`; retry
+  once that request has finished
+- a keyed request that fails before a refund is created releases the key, so retrying under it is
+  not locked out
+
+A `201` means the refund was accepted, not that it was processed. Check the outcome with
+`getRefund(refundId)`.
+
+##### Plain Java SDK Example
+```java
+String idempotencyKey = UUID.randomUUID().toString();   // persist this with your refund record
+
+AccountNumberRefundRequest request = (AccountNumberRefundRequest) new AccountNumberRefundRequest()
+        .paymentId(paymentId);
+
+// Every attempt — including one from a later job run or after a restart — reuses the same key.
+RefundResponse refundResponse = client.createRefund(request, null, idempotencyKey);
+```
+
+##### Spring SDK Example
+```java
+Mono<RefundResponse> refundResponse = client.createRefundAsMono(request, null, idempotencyKey);
+
+// Or via the request headers map
+Map<String, String> requestHeaders = Map.of("idempotency-key", idempotencyKey);
+Mono<RefundResponse> refundResponse = client.createRefundAsMono(request, requestHeaders);
+```
+
+Omitting the key keeps the previous behaviour: the SDK generates one per call, which makes its own
+internal retries safe but cannot de-duplicate a retry you drive yourself.
 
 ## Handling Payment Settlement
 

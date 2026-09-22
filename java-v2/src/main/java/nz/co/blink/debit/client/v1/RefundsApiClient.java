@@ -45,12 +45,31 @@ public class RefundsApiClient {
      * @throws BlinkServiceException if the request fails
      */
     public RefundResponse createRefund(RefundDetail request, String requestId) throws BlinkServiceException {
+        return createRefund(request, requestId, null);
+    }
+
+    /**
+     * Create a refund with custom request ID and idempotency key.
+     *
+     * <p>The idempotency key is the only de-duplication on refund creation. Pass the key from the
+     * original attempt when retrying, and the API replays that refund instead of creating a second
+     * one. A null or blank key is generated, which is safe within one call (the built-in retry
+     * reuses it) but not across calls.</p>
+     *
+     * @param request        the refund request
+     * @param requestId      the request ID for tracing, generated when null or blank
+     * @param idempotencyKey the idempotency key, generated when null or blank
+     * @return the refund response
+     * @throws BlinkServiceException if the request fails
+     */
+    public RefundResponse createRefund(RefundDetail request, String requestId, String idempotencyKey)
+            throws BlinkServiceException {
         if (request == null) {
             throw new BlinkInvalidValueException("Refund request must not be null");
         }
 
         log.debug("Creating refund with request-id: {}", requestId);
-        return httpHelper.post(REFUNDS_PATH, request, RefundResponse.class, requestId);
+        return httpHelper.post(REFUNDS_PATH, request, RefundResponse.class, requestId, idempotencyKey);
     }
 
     /**
