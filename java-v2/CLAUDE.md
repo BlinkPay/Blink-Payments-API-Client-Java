@@ -264,6 +264,13 @@ Child classes implement `getType()` to return their discriminator value.
 
 Some DTOs need `import nz.co.blink.debit.dto.ApiClient;` added for compilation.
 
+#### 4. Optional `status_updated_timestamp`
+
+On `Consent`, `Payment` and `Refund`, `statusUpdatedTimestamp` is `required = false` with
+`@JsonInclude(NON_NULL)` on the getter and setter. The API omits the field until the status first
+changes, and the generator's `USE_DEFAULTS` behaves like `ALWAYS` with `BlinkDebitClient`'s mapper, which
+would write it back as an explicit `null`. Keep `NON_NULL` if these DTOs are regenerated.
+
 ### Base Classes
 
 **ApiClient.java**: Base class providing shared utilities for generated DTOs.
