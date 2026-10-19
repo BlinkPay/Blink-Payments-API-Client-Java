@@ -280,12 +280,11 @@ public class Payment {
     }
 
     /**
-     * The timestamp that the payment status was last updated.
+     * The timestamp that the payment status was last updated. Absent until the status first changes.
      *
      * @return statusUpdatedTimestamp
      **/
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "The timestamp that the payment status was last updated.")
-    @NotNull(message = "Status updated timestamp must not be null")
+    @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "The timestamp that the payment status was last updated. Absent until the status first changes.")
     @Valid
     public OffsetDateTime getStatusUpdatedTimestamp() {
         return statusUpdatedTimestamp;

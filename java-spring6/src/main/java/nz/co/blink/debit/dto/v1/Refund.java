@@ -172,12 +172,11 @@ public class Refund {
     }
 
     /**
-     * The time that the status was last updated.
+     * The time that the status was last updated. Absent until the status first changes.
      *
      * @return statusUpdatedTimestamp
      **/
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "The time that the status was last updated.")
-    @NotNull
+    @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "The time that the status was last updated. Absent until the status first changes.")
     @Valid
     public OffsetDateTime getStatusUpdatedTimestamp() {
         return statusUpdatedTimestamp;
