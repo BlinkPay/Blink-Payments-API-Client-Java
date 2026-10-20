@@ -198,7 +198,7 @@ public class Refund {
   }
 
   /**
-   * The time that the status was last updated. Absent until the status first changes.
+   * The time that the status was last updated.
    * @return statusUpdatedTimestamp
    */
   

@@ -334,7 +334,7 @@ public class Payment {
   }
 
   /**
-   * The timestamp that the payment status was last updated. Absent until the status first changes.
+   * The timestamp that the payment status was last updated.
    * @return statusUpdatedTimestamp
    */
   
