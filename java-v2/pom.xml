@@ -44,7 +44,7 @@
 
         <!-- Dependency versions -->
         <slf4j.version>2.0.18</slf4j.version>
-        <jackson.version>2.22.2</jackson.version>
+        <jackson.version>2.22.3</jackson.version>
         <java.jwt.version>4.6.0</java.jwt.version>
         <validation.api.version>2.0.1.Final</validation.api.version>
 
