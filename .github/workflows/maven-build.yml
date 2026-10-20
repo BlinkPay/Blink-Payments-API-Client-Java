@@ -10,16 +10,19 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '21', '25' ]
 
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - name: Set up 64-bit Corretto 25
+      - name: Set up 64-bit Corretto ${{ matrix.java }}
         uses: actions/setup-java@v6
         with:
-          java-version: '25'
+          java-version: ${{ matrix.java }}
           distribution: 'corretto'
           architecture: x64
           cache: maven

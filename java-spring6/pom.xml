@@ -123,7 +123,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Jackson dependencies (used directly by DTOs; java-jwt 4.6.0 only provides Jackson at runtime scope) -->
+        <!-- Jackson dependencies (used directly by DTOs; java-jwt only provides Jackson at runtime scope) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>

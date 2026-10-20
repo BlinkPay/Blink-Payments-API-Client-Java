@@ -24,13 +24,13 @@ Lightweight Java SDK for integrating with **Blink PayNow** (one-off payments) an
 <dependency>
     <groupId>nz.co.blinkpay</groupId>
     <artifactId>blink-debit-api-client-java</artifactId>
-    <version>2.0.0</version>
+    <version>${version}</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'nz.co.blinkpay:blink-debit-api-client-java:2.0.0'
+implementation "nz.co.blinkpay:blink-debit-api-client-java:$version"
 ```
 
 ## Quick Start
