@@ -31,7 +31,8 @@
         <snakeyaml.version>2.7</snakeyaml.version>
         <commons.lang.version>3.21.0</commons.lang.version>
         <commons.collections.version>4.6.0</commons.collections.version>
-        <netty.version>4.2.19.Final</netty.version>
+        <!-- Keep on the 4.1 line managed by Spring Boot 3.5 so consumers don't get a mixed Netty classpath -->
+        <netty.version>4.1.135.Final</netty.version>
         <slf4j.version>2.0.20</slf4j.version>
         <logback.version>1.6.5</logback.version>
         <jackson.version>2.22.4</jackson.version>

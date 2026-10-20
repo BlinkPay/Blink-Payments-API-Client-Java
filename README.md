@@ -1029,14 +1029,14 @@ if (payment.getStatus() == Payment.StatusEnum.ACCEPTED_SETTLEMENT_COMPLETED) {
 The Plain Java SDK has minimal runtime dependencies:
 
 **Runtime:**
-- `jackson-databind` (2.20.1) - JSON serialization
-- `jackson-datatype-jsr310` (2.20.1) - Java 8 date/time support
-- `java-jwt` (4.5.0) - JWT token handling
-- `slf4j-api` (2.0.17) - Logging facade
+- `jackson-databind` - JSON serialization
+- `jackson-datatype-jsr310` - Java 8 date/time support
+- `java-jwt` - JWT token handling
+- `slf4j-api` - Logging facade
 
 **Optional:**
-- `validation-api` (2.0.1.Final) - Bean validation annotations
-- `javax.annotation-api` (1.3.2) - @Generated annotations
+- `validation-api` - Bean validation annotations
+- `javax.annotation-api` - @Generated annotations
 
 ### Spring SDK Dependencies
 
@@ -1049,12 +1049,12 @@ The Spring SDK uses `provided` scope for Spring dependencies - you must provide 
 - Netty
 
 **Runtime:**
-- `java-jwt` (4.5.0) - JWT token handling
-- `swagger-annotations` (2.2.40) - API documentation
-- `slf4j-api` (2.0.17) - Logging facade
-- `commons-lang3` (3.19.0) - Utility functions
+- `java-jwt` - JWT token handling
+- `swagger-annotations` - API documentation
+- `slf4j-api` - Logging facade
+- `commons-lang3` - Utility functions
 
-Use `mvn dependency:tree` in each module directory to view full dependency trees.
+Exact versions are declared in each module's `pom.xml`. Use `mvn dependency:tree` in each module directory to view full dependency trees.
 
 ## Support
 
