@@ -187,8 +187,7 @@ public class Consent {
      *
      * @return statusUpdatedTimestamp
      **/
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "The time that the status was last updated")
-    @NotNull(message = "Status updated timestamp must not be null")
+    @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "The time that the status was last updated")
     @Valid
     public OffsetDateTime getStatusUpdatedTimestamp() {
         return statusUpdatedTimestamp;

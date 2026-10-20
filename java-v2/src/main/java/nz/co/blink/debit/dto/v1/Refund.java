@@ -202,18 +202,17 @@ public class Refund {
    * @return statusUpdatedTimestamp
    */
   
-  @NotNull
   @Valid
 
-  @JsonProperty(value = JSON_PROPERTY_STATUS_UPDATED_TIMESTAMP, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonProperty(value = JSON_PROPERTY_STATUS_UPDATED_TIMESTAMP, required = false)
+  @JsonInclude(value = JsonInclude.Include.NON_NULL)
   public OffsetDateTime getStatusUpdatedTimestamp() {
     return statusUpdatedTimestamp;
   }
 
 
-  @JsonProperty(value = JSON_PROPERTY_STATUS_UPDATED_TIMESTAMP, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonProperty(value = JSON_PROPERTY_STATUS_UPDATED_TIMESTAMP, required = false)
+  @JsonInclude(value = JsonInclude.Include.NON_NULL)
   public void setStatusUpdatedTimestamp( OffsetDateTime statusUpdatedTimestamp) {
     this.statusUpdatedTimestamp = statusUpdatedTimestamp;
   }
