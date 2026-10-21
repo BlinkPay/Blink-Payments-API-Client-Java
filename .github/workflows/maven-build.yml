@@ -36,6 +36,7 @@ jobs:
   integration:
     if: ${{ vars.JOB_ENABLED == 'true' }}
     runs-on: ubuntu-latest
+    environment: Sandbox
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -53,16 +54,16 @@ jobs:
       - name: Run Spring SDK (java-spring6) integration tests
         run: cd java-spring6 && mvn -B -ntp verify -Dgpg.skip
         env:
-          BLINKPAY_DEBIT_URL: https://sandbox.debit.blinkpay.co.nz
-          BLINKPAY_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          BLINKPAY_DEBIT_URL: ${{ vars.DEBIT_URL }}
+          BLINKPAY_CLIENT_ID: ${{ vars.CLIENT_ID }}
           BLINKPAY_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           BLINKPAY_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Run Plain Java SDK (java-v2) integration tests
         run: cd java-v2 && mvn -B -ntp verify -Dgpg.skip
         env:
-          BLINKPAY_DEBIT_URL: https://sandbox.debit.blinkpay.co.nz
-          BLINKPAY_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          BLINKPAY_DEBIT_URL: ${{ vars.DEBIT_URL }}
+          BLINKPAY_CLIENT_ID: ${{ vars.CLIENT_ID }}
           BLINKPAY_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
   sonar:

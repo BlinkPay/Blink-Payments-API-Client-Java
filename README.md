@@ -139,6 +139,20 @@ implementation "org.springframework.cloud:spring-cloud-starter-circuitbreaker-re
 
 The SDK uses `provided` scope and standard Spring APIs, so it should work with any Spring Framework 6.x+ version (or Spring Boot 3.x+). You have flexibility to upgrade Spring independently of the SDK.
 
+**Netty security patches:** the SDK declares Netty 4.1.139.Final or later, which fixes a hostname verification bypass on Java 25+ (AIKIDO-2026-421700) and several request-smuggling issues in the HTTP codecs. If your application imports the Spring Boot BOM, Boot's managed Netty version takes precedence over the SDK's and Boot 3.5.16 still manages 4.1.135. Override the version in your own build until you move to a Boot release that manages a patched Netty:
+
+```xml
+<!-- Maven: pom.xml properties -->
+<properties>
+    <netty.version>4.1.139.Final</netty.version>
+</properties>
+```
+
+```groovy
+// Gradle: build.gradle
+ext['netty.version'] = '4.1.139.Final'
+```
+
 ## Quick Start
 
 ### Plain Java SDK (Recommended)
