@@ -139,19 +139,52 @@ implementation "org.springframework.cloud:spring-cloud-starter-circuitbreaker-re
 
 The SDK uses `provided` scope and standard Spring APIs, so it should work with any Spring Framework 6.x+ version (or Spring Boot 3.x+). You have flexibility to upgrade Spring independently of the SDK.
 
-**Netty security patches:** the SDK declares Netty 4.1.139.Final or later, which fixes a hostname verification bypass on Java 25+ (AIKIDO-2026-421700) and several request-smuggling issues in the HTTP codecs. If your application imports the Spring Boot BOM, Boot's managed Netty version takes precedence over the SDK's and Boot 3.5.16 still manages 4.1.135. Override the version in your own build until you move to a Boot release that manages a patched Netty:
+**Netty security patches:** the SDK declares Netty 4.1.139.Final or later, which fixes a hostname verification bypass on Java 25+ (AIKIDO-2026-421700) and several request-smuggling issues in the HTTP codecs. Spring Boot's dependency management takes precedence over the SDK's, and Boot 3.5.16 still manages Netty 4.1.135. Until you move to a Boot release that manages a patched Netty, override the version in your own build. How depends on how your build consumes Boot:
+
+*Maven with `spring-boot-starter-parent`* - set the property that the parent uses:
 
 ```xml
-<!-- Maven: pom.xml properties -->
 <properties>
     <netty.version>4.1.139.Final</netty.version>
 </properties>
 ```
 
+*Maven with `spring-boot-dependencies` imported in `dependencyManagement`* - an imported BOM resolves its own properties, so the property above has no effect. Import the Netty BOM **before** the Boot BOM instead; the first import wins:
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-bom</artifactId>
+            <version>4.1.139.Final</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>${spring-boot.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+*Gradle with the `io.spring.dependency-management` plugin* - set the property the plugin reads:
+
 ```groovy
-// Gradle: build.gradle
 ext['netty.version'] = '4.1.139.Final'
 ```
+
+*Gradle with `platform(...)`* - add the Netty BOM as a platform; Gradle resolves to the highest version across platforms:
+
+```groovy
+implementation platform("io.netty:netty-bom:4.1.139.Final")
+```
+
+Confirm the result with `mvn dependency:tree -Dincludes=io.netty` or `gradle dependencies --configuration runtimeClasspath`; every `io.netty` artefact should show 4.1.139.Final.
 
 ## Quick Start
 
