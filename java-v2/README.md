@@ -24,13 +24,13 @@ Lightweight Java SDK for integrating with **Blink PayNow** (one-off payments) an
 <dependency>
     <groupId>nz.co.blinkpay</groupId>
     <artifactId>blink-debit-api-client-java</artifactId>
-    <version>2.0.0</version>
+    <version>${version}</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-implementation 'nz.co.blinkpay:blink-debit-api-client-java:2.0.0'
+implementation "nz.co.blinkpay:blink-debit-api-client-java:$version"
 ```
 
 ## Quick Start
@@ -359,14 +359,16 @@ mvn package -DskipTests
 ## Dependencies
 
 Runtime dependencies:
-- `jackson-databind` (2.20.1) - JSON serialization
-- `jackson-datatype-jsr310` (2.20.1) - Java 8 date/time support
-- `java-jwt` (4.5.0) - JWT token handling
-- `slf4j-api` (2.0.17) - Logging facade
+- `jackson-databind` - JSON serialization
+- `jackson-datatype-jsr310` - Java 8 date/time support
+- `java-jwt` - JWT token handling
+- `slf4j-api` - Logging facade
 
 Optional dependencies:
-- `validation-api` (2.0.1.Final) - Bean validation annotations
-- `javax.annotation-api` (1.3.2) - @Generated annotations
+- `validation-api` - Bean validation annotations
+- `javax.annotation-api` - @Generated annotations
+
+Exact versions are declared in `pom.xml`.
 
 ## Contributing
 

@@ -37,9 +37,10 @@
                 <ignoreVersion type="regex">[4-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
-        <!-- Netty 5 is experimental -->
+        <!-- Spring Boot 3.5 manages Netty 4.1; 4.2 would give consumers a mixed classpath, and 5 is experimental -->
         <rule groupId="io.netty">
             <ignoreVersions>
+                <ignoreVersion type="regex">4\.([2-9]|\d{2,})\..*</ignoreVersion>
                 <ignoreVersion type="regex">[5-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>

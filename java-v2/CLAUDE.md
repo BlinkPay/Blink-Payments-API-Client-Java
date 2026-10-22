@@ -494,7 +494,7 @@ static void tearDown() {
 - Unit test needs (50-60 tests recommended)
 
 **Configuration**:
-- Uses JUnit Jupiter 6.0.1 with `@Tag("integration")`
+- Uses JUnit Jupiter with `@Tag("integration")`
 - Requires environment variables: `BLINKPAY_DEBIT_URL`, `BLINKPAY_CLIENT_ID`, `BLINKPAY_CLIENT_SECRET`
 - Uses `assumeTrue()` to skip gracefully if credentials unavailable
 - Logging provided by logback-classic (test scope only)
@@ -525,11 +525,12 @@ mvn package -DskipTests
 ### Test Dependencies
 
 **Test Scope Only** (not in runtime):
-- JUnit Jupiter 6.0.1 - Test framework
-- AssertJ 3.27.6 - Fluent assertions
-- Logback Classic 1.4.14 - Logging implementation for tests
+- JUnit Jupiter - Test framework
+- AssertJ - Fluent assertions
+- Mockito - Mocking HTTP calls in unit tests
+- Logback Classic - Logging implementation for tests
 
-**Note**: No Spring, Mockito, or other heavyweight test frameworks used, aligning with lightweight SDK design
+**Note**: No Spring or other heavyweight test frameworks used, aligning with lightweight SDK design
 
 ## Build and Package
 
@@ -557,27 +558,31 @@ mvn dependency:tree
 
 ### Build Output
 
-- Main JAR: `target/blink-debit-api-client-java-v2-2.0.0-SNAPSHOT.jar` (~206 KB)
-- Sources JAR: `target/blink-debit-api-client-java-v2-2.0.0-SNAPSHOT-sources.jar`
-- Javadoc JAR: `target/blink-debit-api-client-java-v2-2.0.0-SNAPSHOT-javadoc.jar`
+- Main JAR: `target/blink-debit-api-client-java-<version>.jar`
+- Sources JAR: `target/blink-debit-api-client-java-<version>-sources.jar`
+- Javadoc JAR: `target/blink-debit-api-client-java-<version>-javadoc.jar`
 
 ### Dependencies (Runtime)
 
 **Compile Scope**:
-- slf4j-api (2.0.17) - Logging facade
-- jackson-core (2.20.1) - JSON processing
-- jackson-databind (2.20.1) - JSON object mapping
-- jackson-datatype-jsr310 (2.20.1) - Java 8 date/time support
-- java-jwt (4.5.0) - JWT token decoding
+- slf4j-api - Logging facade
+- jackson-core - JSON processing
+- jackson-databind - JSON object mapping
+- jackson-datatype-jsr310 - Java 8 date/time support
+- java-jwt - JWT token decoding
 
 **Optional**:
-- validation-api (2.0.1.Final) - Bean validation annotations
-- javax.annotation-api (1.3.2) - @Generated and @Nonnull annotations
+- validation-api - Bean validation annotations
+- javax.annotation-api - @Generated and @Nonnull annotations
 
 **Test Scope**:
-- junit-jupiter (6.0.1)
-- assertj-core (3.27.6)
-- spring-boot-starter-test (2.7.18) - Test infrastructure only
+- junit-jupiter
+- assertj-core
+- mockito-core, mockito-junit-jupiter
+- logback-classic
+
+Versions are declared as properties in `pom.xml`; check for updates with
+`mvn versions:display-property-updates` (rules in the root `version-rules.xml`).
 
 ## Development Guidelines
 

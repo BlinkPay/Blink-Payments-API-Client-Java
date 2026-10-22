@@ -129,16 +129,18 @@ mvn test -DexcludedGroups=""
 ## Dependencies
 
 ### Runtime Dependencies (compile scope)
-- **slf4j-api** (2.0.17): Logging facade
-- **jackson-core, jackson-databind, jackson-datatype-jsr310** (2.20.1): JSON processing
-- **java-jwt** (4.5.0): JWT token handling
-- **validation-api** (2.0.1.Final): Optional - bean validation annotations
-- **javax.annotation-api** (1.3.2): Optional - @Generated and @Nonnull annotations
+- **slf4j-api**: Logging facade
+- **jackson-core, jackson-databind, jackson-datatype-jsr310**: JSON processing
+- **java-jwt**: JWT token handling
+- **validation-api**: Optional - bean validation annotations
+- **javax.annotation-api**: Optional - @Generated and @Nonnull annotations
+
+Versions are declared as properties in each module's `pom.xml`; check for updates with
+`mvn versions:display-property-updates` (rules in `version-rules.xml`).
 
 ### Test Dependencies
-- JUnit 5 (6.0.1)
-- AssertJ (3.27.6)
-- Spring Boot Test (2.7.18) - for test infrastructure only
+- JUnit 5, AssertJ, Mockito
+- Logback Classic - logging implementation for tests only
 
 ### Dependency Comparison
 - **Spring SDK**: Heavier runtime dependencies (Spring, Netty, Reactor, Commons, Resilience4j, Hibernate Validator)
@@ -167,9 +169,9 @@ mvn package -DskipTests
 ```
 
 ### Output
-- JAR: `target/blink-debit-api-client-java-v2-2.0.0-SNAPSHOT.jar`
-- Sources JAR: `target/blink-debit-api-client-java-v2-2.0.0-SNAPSHOT-sources.jar`
-- Javadoc JAR: `target/blink-debit-api-client-java-v2-2.0.0-SNAPSHOT-javadoc.jar`
+- JAR: `target/blink-debit-api-client-java-<version>.jar`
+- Sources JAR: `target/blink-debit-api-client-java-<version>-sources.jar`
+- Javadoc JAR: `target/blink-debit-api-client-java-<version>-javadoc.jar`
 
 ## Usage Example
 

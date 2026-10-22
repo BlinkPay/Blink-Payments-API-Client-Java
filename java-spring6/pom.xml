@@ -27,16 +27,17 @@
         <spring.cloud.starter.circuitbreaker.reactor.resilience4j.version>3.3.3</spring.cloud.starter.circuitbreaker.reactor.resilience4j.version>
 
         <!-- Library dependencies -->
-        <lombok.version>1.18.46</lombok.version>
+        <lombok.version>1.18.48</lombok.version>
         <snakeyaml.version>2.7</snakeyaml.version>
-        <commons.lang.version>3.20.0</commons.lang.version>
+        <commons.lang.version>3.21.0</commons.lang.version>
         <commons.collections.version>4.6.0</commons.collections.version>
-        <netty.version>4.2.17.Final</netty.version>
-        <slf4j.version>2.0.18</slf4j.version>
-        <logback.version>1.6.3</logback.version>
-        <jackson.version>2.22.2</jackson.version>
-        <java.jwt.version>4.6.0</java.jwt.version>
-        <swagger.version>2.2.54</swagger.version>
+        <!-- Stay on the 4.1 line managed by Spring Boot 3.5 so consumers don't get a mixed Netty classpath,
+             but track the latest 4.1 patch for security fixes (Boot 3.5.16 still manages 4.1.135) -->
+        <netty.version>4.1.139.Final</netty.version>
+        <slf4j.version>2.0.20</slf4j.version>
+        <jackson.version>2.22.4</jackson.version>
+        <java.jwt.version>4.6.2</java.jwt.version>
+        <swagger.version>2.2.55</swagger.version>
 
         <!-- Test dependencies -->
         <reactor.test.version>3.7.19</reactor.test.version>
@@ -123,7 +124,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Jackson dependencies (used directly by DTOs; java-jwt 4.6.0 only provides Jackson at runtime scope) -->
+        <!-- Jackson dependencies (used directly by DTOs; java-jwt only provides Jackson at runtime scope) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -155,11 +156,6 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -178,6 +174,15 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Align every Netty artefact, including those pulled in by the provided Spring Boot starters,
+                 on the patched 4.1 release (AIKIDO-2026-421700 and the fixes in 4.1.138/4.1.139) -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- Force fix for CVE-2025-22228 -->
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -207,7 +212,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version>
+                <version>3.16.0</version>
                 <configuration>
                     <release>${java.version}</release>
                     <annotationProcessorPaths>
@@ -223,7 +228,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>3.6.0</version>
                 <configuration>
                     <excludedGroups>integration</excludedGroups>
                 </configuration>
@@ -232,7 +237,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>3.6.0</version>
                 <configuration>
                     <includes>
                         <include>**/*IntegrationTest.java</include>
@@ -251,7 +256,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <id>add-integration-test-source</id>
@@ -286,7 +291,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.2.0</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
