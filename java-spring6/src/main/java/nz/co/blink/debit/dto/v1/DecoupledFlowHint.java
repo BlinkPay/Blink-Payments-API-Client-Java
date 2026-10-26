@@ -77,7 +77,7 @@ public class DecoupledFlowHint extends FlowHint {
      *
      * @return identifierValue
      **/
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "")
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, nullable = true, description = "")
     @NotNull(message = "Identifier value must not be null")
     public String getIdentifierValue() {
         return identifierValue;

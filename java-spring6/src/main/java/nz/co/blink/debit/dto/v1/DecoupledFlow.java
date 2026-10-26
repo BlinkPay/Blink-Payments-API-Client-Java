@@ -102,7 +102,7 @@ public class DecoupledFlow extends AuthFlowDetail implements OneOfauthFlowDetail
      *
      * @return identifierValue
      **/
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "The identifier value.")
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, nullable = true, description = "The identifier value.")
     @NotNull(message = "Identifier value must not be null")
     public String getIdentifierValue() {
         return identifierValue;

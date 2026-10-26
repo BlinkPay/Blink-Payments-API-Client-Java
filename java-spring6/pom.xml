@@ -303,7 +303,7 @@
         <profile>
             <id>versioning</id>
             <properties>
-                <revision>2.1.4</revision>
+                <revision>2.1.5</revision>
             </properties>
         </profile>
     </profiles>
