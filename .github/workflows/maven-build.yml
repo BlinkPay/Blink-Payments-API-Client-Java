@@ -115,3 +115,47 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SPRING6_SONAR_TOKEN }}
+
+  aikido-coverage:
+    if: ${{ github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up 64-bit Corretto 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          java-version: '25'
+          distribution: 'corretto'
+          architecture: x64
+          cache: maven
+
+      - name: Run unit tests with JaCoCo
+        run: SPRING_PROFILES_ACTIVE=test mvn -B -ntp test -Dgpg.skip
+
+      # Aikido reads LCOV or Cobertura, not JaCoCo XML. Convert each module on its own.
+      - name: Convert JaCoCo reports to LCOV
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.5.11
+          for module in java-v2 java-spring6; do
+            reportgenerator \
+              -reports:$module/target/site/jacoco/jacoco.xml \
+              -sourcedirs:$module/src/main/java \
+              -targetdir:$module/target/site/lcov \
+              -reporttypes:lcov \
+              "-filefilters:-*/dto/v1/*"
+          done
+
+      - name: Upload coverage to Aikido
+        uses: AikidoSec/code-coverage-github-action@e0637ab96a560c1ab11671c41a4a4668075bae0e # v2.1.1
+        with:
+          region: au
+          file-paths: |
+            java-v2/target/site/lcov/lcov.info
+            java-spring6/target/site/lcov/lcov.info
