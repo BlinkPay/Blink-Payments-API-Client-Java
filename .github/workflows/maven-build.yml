@@ -10,6 +10,8 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -32,6 +34,57 @@ jobs:
         run: SPRING_PROFILES_ACTIVE=test mvn -B -ntp test
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # Aikido reads LCOV or Cobertura, not JaCoCo XML. Convert each module on its own,
+      # from one matrix leg only so a single report is uploaded per commit.
+      - name: Convert JaCoCo reports to LCOV
+        if: ${{ matrix.java == '25' }}
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.5.11
+          for module in java-v2 java-spring6; do
+            reportgenerator \
+              -reports:$module/target/site/jacoco/jacoco.xml \
+              -sourcedirs:$module/src/main/java \
+              -targetdir:$module/target/site/lcov \
+              -reporttypes:lcov \
+              "-filefilters:-*/dto/v1/*"
+          done
+
+      - name: Store LCOV reports for the Aikido upload
+        if: ${{ matrix.java == '25' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lcov
+          path: '*/target/site/lcov/lcov.info'
+          retention-days: 1
+
+  # Pull request runs check out a synthetic merge commit, so coverage is only
+  # uploaded for pushes to master and manual runs. Kept as its own job so the
+  # OIDC token grant stays off the test matrix, as Aikido recommends.
+  aikido-coverage:
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: unit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: lcov
+
+      - name: Upload coverage to Aikido
+        uses: AikidoSec/code-coverage-github-action@e0637ab96a560c1ab11671c41a4a4668075bae0e # v2.1.1
+        with:
+          region: au
+          file-paths: |
+            java-v2/target/site/lcov/lcov.info
+            java-spring6/target/site/lcov/lcov.info
 
   integration:
     if: ${{ vars.JOB_ENABLED == 'true' }}
@@ -115,47 +168,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SPRING6_SONAR_TOKEN }}
-
-  aikido-coverage:
-    if: ${{ github.event_name != 'pull_request' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Set up 64-bit Corretto 25
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        with:
-          java-version: '25'
-          distribution: 'corretto'
-          architecture: x64
-          cache: maven
-
-      - name: Run unit tests with JaCoCo
-        run: SPRING_PROFILES_ACTIVE=test mvn -B -ntp test -Dgpg.skip
-
-      # Aikido reads LCOV or Cobertura, not JaCoCo XML. Convert each module on its own.
-      - name: Convert JaCoCo reports to LCOV
-        run: |
-          dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.5.11
-          for module in java-v2 java-spring6; do
-            reportgenerator \
-              -reports:$module/target/site/jacoco/jacoco.xml \
-              -sourcedirs:$module/src/main/java \
-              -targetdir:$module/target/site/lcov \
-              -reporttypes:lcov \
-              "-filefilters:-*/dto/v1/*"
-          done
-
-      - name: Upload coverage to Aikido
-        uses: AikidoSec/code-coverage-github-action@e0637ab96a560c1ab11671c41a4a4668075bae0e # v2.1.1
-        with:
-          region: au
-          file-paths: |
-            java-v2/target/site/lcov/lcov.info
-            java-spring6/target/site/lcov/lcov.info
