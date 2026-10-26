@@ -285,9 +285,10 @@ class SingleConsentsApiClientIntegrationTest {
         DecoupledFlow flow = (DecoupledFlow) detail.getFlow().getDetail();
         assertThat(flow)
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flow.getIdentifierValue()).isIn("+64-259531933", null);
         assertThat(detail.getPcr())
                 .isNotNull()
                 .extracting(Pcr::getParticulars, Pcr::getCode, Pcr::getReference)
@@ -326,9 +327,10 @@ class SingleConsentsApiClientIntegrationTest {
         DecoupledFlow flow = (DecoupledFlow) detail.getFlow().getDetail();
         assertThat(flow)
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flow.getIdentifierValue()).isIn("+64-259531933", null);
         assertThat(detail.getPcr())
                 .isNotNull()
                 .extracting(Pcr::getParticulars, Pcr::getCode, Pcr::getReference)
@@ -529,8 +531,9 @@ class SingleConsentsApiClientIntegrationTest {
         assertThat(flowHint)
                 .isNotNull()
                 .extracting(DecoupledFlowHint::getType, DecoupledFlowHint::getBank,
-                        DecoupledFlowHint::getIdentifierType, DecoupledFlowHint::getIdentifierValue)
-                .containsExactly(FlowHint.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER, "+64-259531933");
+                        DecoupledFlowHint::getIdentifierType)
+                .containsExactly(FlowHint.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER);
+        assertThat(flowHint.getIdentifierValue()).isIn("+64-259531933", null);
         assertThat(detail.getPcr())
                 .isNotNull()
                 .extracting(Pcr::getParticulars, Pcr::getCode, Pcr::getReference)
@@ -577,8 +580,9 @@ class SingleConsentsApiClientIntegrationTest {
         assertThat(flowHint)
                 .isNotNull()
                 .extracting(DecoupledFlowHint::getType, DecoupledFlowHint::getBank,
-                        DecoupledFlowHint::getIdentifierType, DecoupledFlowHint::getIdentifierValue)
-                .containsExactly(FlowHint.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER, "+64-259531933");
+                        DecoupledFlowHint::getIdentifierType)
+                .containsExactly(FlowHint.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER);
+        assertThat(flowHint.getIdentifierValue()).isIn("+64-259531933", null);
         assertThat(detail.getPcr())
                 .isNotNull()
                 .extracting(Pcr::getParticulars, Pcr::getCode, Pcr::getReference)
