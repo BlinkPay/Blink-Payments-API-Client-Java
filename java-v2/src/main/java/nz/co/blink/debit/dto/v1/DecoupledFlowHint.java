@@ -74,7 +74,9 @@ public class DecoupledFlowHint extends GatewayFlowAllOfFlowHint {
     }
 
     /**
-     * The identifier value.
+     * The identifier value. Required in requests. In responses it is {@code null} once the consent is no longer
+     * awaiting submission or authorisation (it may already be {@code null} once the bank has accepted the request);
+     * a {@code consent_id} reference is always returned.
      *
      * @return identifierValue
      */

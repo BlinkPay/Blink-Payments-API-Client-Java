@@ -73,11 +73,14 @@ public class DecoupledFlowHint extends FlowHint {
     }
 
     /**
-     * Get identifierValue
+     * The identifier value. Required in requests. In responses it is {@code null} once the consent is no longer
+     * awaiting submission or authorisation (it may already be {@code null} once the bank has accepted the request);
+     * a {@code consent_id} reference is always returned.
      *
      * @return identifierValue
      **/
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, nullable = true, description = "")
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, nullable = true,
+            description = "The identifier value. Required in requests. In responses it is `null` once the consent is no longer awaiting submission or authorisation (it may already be `null` once the bank has accepted the request); a `consent_id` reference is always returned.")
     @NotNull(message = "Identifier value must not be null")
     public String getIdentifierValue() {
         return identifierValue;
