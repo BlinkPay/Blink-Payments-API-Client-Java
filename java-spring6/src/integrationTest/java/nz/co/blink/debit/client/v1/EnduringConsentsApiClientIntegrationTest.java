@@ -441,10 +441,9 @@ class EnduringConsentsApiClientIntegrationTest {
         assertThat(flowHint)
                 .isNotNull()
                 .extracting(DecoupledFlowHint::getType, DecoupledFlowHint::getBank,
-                        DecoupledFlowHint::getIdentifierType)
+                        DecoupledFlowHint::getIdentifierType, DecoupledFlowHint::getIdentifierValue)
                 .containsExactly(FlowHint.TypeEnum.DECOUPLED, Bank.PNZ,
-                        IdentifierType.PHONE_NUMBER);
-        assertThat(flowHint.getIdentifierValue()).isIn("+64-259531933", null);
+                        IdentifierType.PHONE_NUMBER, "+64-259531933");
         assertThat(detail.getPeriod()).isEqualTo(Period.FORTNIGHTLY);
         assertThat(detail.getFromTimestamp()).isNotNull();
         assertThat(detail.getExpiryTimestamp()).isNull();
