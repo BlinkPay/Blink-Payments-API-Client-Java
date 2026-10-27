@@ -492,9 +492,10 @@ class EnduringConsentsApiClientIntegrationTest {
         assertThat(flowHint)
                 .isNotNull()
                 .extracting(DecoupledFlowHint::getType, DecoupledFlowHint::getBank,
-                        DecoupledFlowHint::getIdentifierType, DecoupledFlowHint::getIdentifierValue)
+                        DecoupledFlowHint::getIdentifierType)
                 .containsExactly(FlowHint.TypeEnum.DECOUPLED, Bank.PNZ,
-                        IdentifierType.PHONE_NUMBER, "+64-259531933");
+                        IdentifierType.PHONE_NUMBER);
+        assertThat(flowHint.getIdentifierValue()).isIn("+64-259531933", null);
         assertThat(detail.getPeriod()).isEqualTo(Period.FORTNIGHTLY);
         assertThat(detail.getFromTimestamp()).isNotNull();
         assertThat(detail.getExpiryTimestamp()).isNull();
@@ -565,9 +566,10 @@ class EnduringConsentsApiClientIntegrationTest {
         DecoupledFlow flow = (DecoupledFlow) detail.getFlow().getDetail();
         assertThat(flow)
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flow.getIdentifierValue()).isIn("+64-259531933", null);
         assertThat(detail.getPeriod()).isEqualTo(Period.FORTNIGHTLY);
         assertThat(detail.getFromTimestamp()).isNotNull();
         assertThat(detail.getExpiryTimestamp()).isNull();
@@ -609,9 +611,10 @@ class EnduringConsentsApiClientIntegrationTest {
         DecoupledFlow flow = (DecoupledFlow) detail.getFlow().getDetail();
         assertThat(flow)
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flow.getIdentifierValue()).isIn("+64-259531933", null);
         assertThat(detail.getPeriod()).isEqualTo(Period.FORTNIGHTLY);
         assertThat(detail.getFromTimestamp()).isNotNull();
         assertThat(detail.getExpiryTimestamp()).isNull();

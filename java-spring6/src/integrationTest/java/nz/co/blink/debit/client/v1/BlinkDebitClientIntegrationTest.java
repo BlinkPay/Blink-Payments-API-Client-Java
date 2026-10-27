@@ -196,9 +196,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(flowDetail)
                 .isNotNull()
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flowDetail.getIdentifierValue()).isIn("+64-259531933", null);
     }
 
     @Test
@@ -307,9 +308,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(flowDetail)
                 .isNotNull()
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flowDetail.getIdentifierValue()).isIn("+64-259531933", null);
     }
 
     @Test
@@ -422,9 +424,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(flowDetail)
                 .isNotNull()
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flowDetail.getIdentifierValue()).isIn("+64-259531933", null);
     }
 
     @Test
@@ -537,9 +540,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(flowDetail)
                 .isNotNull()
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flowDetail.getIdentifierValue()).isIn("+64-259531933", null);
     }
 
     @Test
@@ -665,9 +669,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(flowDetail)
                 .isNotNull()
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flowDetail.getIdentifierValue()).isIn("+64-259531933", null);
     }
 
     @Test
@@ -832,9 +837,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(flowDetail)
                 .isNotNull()
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flowDetail.getIdentifierValue()).isIn("+64-259531933", null);
     }
 
     @Test
@@ -907,9 +913,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(flowDetail)
                 .isNotNull()
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flowDetail.getIdentifierValue()).isIn("+64-259531933", null);
 
         PaymentRequest paymentRequest = new PaymentRequest()
                 .consentId(consentId);
@@ -1005,9 +1012,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(flowDetail)
                 .isNotNull()
                 .extracting(DecoupledFlow::getType, DecoupledFlow::getBank, DecoupledFlow::getIdentifierType,
-                        DecoupledFlow::getIdentifierValue, DecoupledFlow::getCallbackUrl)
+                        DecoupledFlow::getCallbackUrl)
                 .containsExactly(AuthFlowDetail.TypeEnum.DECOUPLED, Bank.PNZ, IdentifierType.PHONE_NUMBER,
-                        "+64-259531933", CALLBACK_URL);
+                        CALLBACK_URL);
+        assertThat(flowDetail.getIdentifierValue()).isIn("+64-259531933", null);
 
         PaymentRequest paymentRequest = new PaymentRequest()
                 .consentId(consentId);
