@@ -58,11 +58,12 @@ jobs:
           path: '*/target/site/lcov/lcov.info'
           retention-days: 1
 
-  # Pull request runs check out a synthetic merge commit, so coverage is only
-  # uploaded for pushes to master and manual runs. Kept as its own job so the
-  # OIDC token grant stays off the test matrix, as Aikido recommends.
+  # Aikido's PR check waits 30 minutes for a report tied to the PR head commit,
+  # which the action reads from the event payload. Kept as its own job so the
+  # OIDC token grant stays off the test matrix, as Aikido recommends. Fork PRs
+  # cannot mint an OIDC token, so they are skipped.
   aikido-coverage:
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ !github.event.pull_request.head.repo.fork }}
     needs: unit
     runs-on: ubuntu-latest
     permissions:
