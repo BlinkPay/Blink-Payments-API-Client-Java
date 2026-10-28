@@ -16,6 +16,10 @@ jobs:
       fail-fast: false
       matrix:
         java: [ '21', '25' ]
+        include:
+          # The Spring SDK compiles to Java 25, so JDK 21 builds only the Plain Java SDK
+          - java: '21'
+            projects: '-pl .,java-v2'
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,7 +35,7 @@ jobs:
           cache: maven
 
       - name: Run unit tests
-        run: SPRING_PROFILES_ACTIVE=test mvn -B -ntp test
+        run: SPRING_PROFILES_ACTIVE=test mvn -B -ntp ${{ matrix.projects }} test
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
