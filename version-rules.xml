@@ -13,35 +13,16 @@
         <ignoreVersion type="regex">.*[.-]ea\d*</ignoreVersion>
     </ignoreVersions>
     <rules>
-        <!-- java-spring6 targets Spring Boot 3.x / Spring Framework 6.x — ignore the Boot 4 / Framework 7 generation -->
+        <!-- java-spring7 targets Spring Boot 4.x / Spring Framework 7.x — ignore the next generation -->
         <rule groupId="org.springframework.boot">
             <ignoreVersions>
-                <ignoreVersion type="regex">[4-9].*</ignoreVersion>
+                <ignoreVersion type="regex">[5-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
-        <rule groupId="org.springframework.security">
-            <ignoreVersions>
-                <ignoreVersion type="regex">[7-9].*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <!-- Spring Cloud 2025.0.x (circuit breaker 3.x) is the last train for Boot 3.x -->
+        <!-- Spring Cloud circuit breaker 5.x is the Boot 4.x line -->
         <rule groupId="org.springframework.cloud">
             <ignoreVersions>
-                <ignoreVersion type="regex">[4-9].*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <!-- Reactor 3.7.x pairs with Spring Boot 3.5; 3.8+ belongs to Boot 4 -->
-        <rule groupId="io.projectreactor">
-            <ignoreVersions>
-                <ignoreVersion type="regex">3\.([89]|\d{2,})\..*</ignoreVersion>
-                <ignoreVersion type="regex">[4-9].*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-        <!-- Spring Boot 3.5 manages Netty 4.1; 4.2 would give consumers a mixed classpath, and 5 is experimental -->
-        <rule groupId="io.netty">
-            <ignoreVersions>
-                <ignoreVersion type="regex">4\.([2-9]|\d{2,})\..*</ignoreVersion>
-                <ignoreVersion type="regex">[5-9].*</ignoreVersion>
+                <ignoreVersion type="regex">[6-9].*</ignoreVersion>
             </ignoreVersions>
         </rule>
     </rules>

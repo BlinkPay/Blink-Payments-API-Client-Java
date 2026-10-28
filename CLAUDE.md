@@ -20,12 +20,14 @@ This repository contains two independent SDK modules:
 - **Target Users**: Plain Java applications, serverless functions, memory-constrained environments
 - **Documentation**: See `java-v2/README.md` and `java-v2/CLAUDE.md` for details
 
-#### java-spring6 (Spring SDK)
-- **Location**: `java-spring6/`
+#### java-spring7 (Spring SDK)
+- **Location**: `java-spring7/`
 - **Technology**: Spring WebClient with Reactor (Mono/Flux)
-- **Dependencies**: Spring Framework 6, Netty, Reactor
+- **Dependencies**: Spring Boot 4.1 / Spring Framework 7, Jackson 3, Netty, Reactor
+- **Java**: 25 (builds on JDK 25 only)
 - **API Style**: Reactive/async with Mono and Flux
-- **Target Users**: Spring Boot 3.x / Spring Framework 6+ applications
+- **Target Users**: Spring Boot 4.x / Spring Framework 7 applications. Spring Boot 3 users stay on the last
+  2.1.x release of the previous Spring artifact (see the README)
 
 ## Plain Java SDK Architecture
 

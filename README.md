@@ -11,11 +11,11 @@
 [![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Payments-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java)
 
 ---
-## blink-debit-api-client-java-spring6
-[![Maven Central](https://img.shields.io/maven-central/v/nz.co.blinkpay/blink-debit-api-client-java-spring6.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/nz.co.blinkpay/blink-debit-api-client-java-spring6)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java-spring6&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java-spring6)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java-spring6&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java-spring6)
-[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Payments-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java-spring6)
+## blink-debit-api-client-java-spring7
+[![Maven Central](https://img.shields.io/maven-central/v/nz.co.blinkpay/blink-debit-api-client-java-spring7.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/nz.co.blinkpay/blink-debit-api-client-java-spring7)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java-spring7&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java-spring7)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=blink-debit-api-client-java-spring7&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=blink-debit-api-client-java-spring7)
+[![Snyk security](https://snyk.io/test/github/BlinkPay/Blink-Payments-API-Client-Java/badge.svg)](https://security.snyk.io/package/maven/nz.co.blinkpay:blink-debit-api-client-java-spring7)
 
 # Table of Contents
 1. [Introduction](#introduction)
@@ -44,7 +44,7 @@ This SDK allows merchants with Java-based e-commerce sites to integrate with **B
 This repository provides two SDK implementations:
 
 - **Plain Java SDK** (`java-v2/` module - **Recommended**): Lightweight synchronous SDK using Java 11+ HttpClient with minimal dependencies, ideal for plain Java applications, serverless functions, and memory-constrained environments.
-- **Spring SDK** (`java-spring6/` module): Reactive SDK using Spring WebClient with Mono/Flux async programming. Suitable for Spring Boot 3.x / Spring Framework 6+ applications.
+- **Spring SDK** (`java-spring7/` module): Reactive SDK using Spring WebClient with Mono/Flux async programming. Targets Spring Boot 4.1 / Spring Framework 7 / Java 25.
 
 The Plain Java SDK uses the standard Java 11+ HttpClient for synchronous blocking calls with minimal dependencies. The Spring SDK internally uses WebClient for making reactive API calls.
 
@@ -56,7 +56,7 @@ This project is licensed under the MIT License.
 ## Minimum Requirements
 - Maven 3 or Gradle 7
 - Java 11 or higher (for Plain Java SDK - `blink-debit-api-client-java`)
-- Java 21 or higher (for Spring SDK - `blink-debit-api-client-java-spring6`)
+- Java 25 or higher (for Spring SDK - `blink-debit-api-client-java-spring7`)
 - Lombok 1.18 (for Spring SDK development only)
 
 ## Adding the dependency
@@ -86,105 +86,60 @@ This lightweight version has minimal runtime dependencies.
 implementation "nz.co.blinkpay:blink-debit-api-client-java:$version"
 ```
 
-### For Spring Boot 3.x / Spring Framework 6+ Applications
-Use `blink-debit-api-client-java-spring6` for:
-- **Spring Boot 3.x+** applications
-- **Spring Framework 6.x+** applications
+### For Spring Boot 4.x / Spring Framework 7 Applications
+Use `blink-debit-api-client-java-spring7` for:
+- **Spring Boot 4.x** applications (built and tested against Spring Boot 4.1)
+- **Spring Framework 7.x** applications on **Java 25+**
 - Applications that prefer **reactive programming** with Mono/Flux
 
-**Important:** This SDK uses `provided` scope for Spring dependencies - you must provide compatible Spring Framework dependencies in your application. The SDK is compatible with Spring Framework 6.x+ (Spring Boot 3.x+) and has been tested with Spring Framework 6.2.12 (Spring Boot 3.5.7). Future Spring versions should work as long as they maintain API compatibility.
+**Important:** This SDK uses `provided` scope for Spring dependencies - you must provide compatible Spring Framework dependencies in your application. JSON mapping uses Jackson 3 (`tools.jackson`), which Spring Boot 4's WebFlux starter brings in.
+
+**Spring Boot 3 users:** stay on the last `blink-debit-api-client-java-spring6` release (2.1.5). From 3.0.0 the Spring SDK is published as `blink-debit-api-client-java-spring7` and needs Spring Boot 4.
 
 #### Maven
 ```xml
 <!-- Blink Debit API Client for Spring -->
 <dependency>
     <groupId>nz.co.blinkpay</groupId>
-    <artifactId>blink-debit-api-client-java-spring6</artifactId>
+    <artifactId>blink-debit-api-client-java-spring7</artifactId>
     <version>${version}</version>
 </dependency>
 
-<!-- Required: Your Spring Boot dependencies (3.0.0 or higher) -->
+<!-- Required: Your Spring Boot dependencies (4.x) -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-webflux</artifactId>
-    <version>3.5.7</version> <!-- Or any Spring Boot 3.x version -->
+    <version>4.1.2</version> <!-- Or any Spring Boot 4.x version -->
 </dependency>
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-validation</artifactId>
-    <version>3.5.7</version>
+    <version>4.1.2</version>
 </dependency>
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
-    <version>3.3.0</version> <!-- Or compatible version -->
+    <version>5.0.3</version> <!-- Or compatible version -->
 </dependency>
 ```
 
 #### Gradle
 ```groovy
 // Blink Debit API Client for Spring
-implementation "nz.co.blinkpay:blink-debit-api-client-java-spring6:$version"
+implementation "nz.co.blinkpay:blink-debit-api-client-java-spring7:$version"
 
-// Required: Your Spring Boot dependencies (3.0.0 or higher)
-implementation "org.springframework.boot:spring-boot-starter-webflux:3.5.7"
-implementation "org.springframework.boot:spring-boot-starter-validation:3.5.7"
-implementation "org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j:3.3.0"
+// Required: Your Spring Boot dependencies (4.x)
+implementation "org.springframework.boot:spring-boot-starter-webflux:4.1.2"
+implementation "org.springframework.boot:spring-boot-starter-validation:4.1.2"
+implementation "org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j:5.0.3"
 ```
 
 **Spring Version Compatibility:**
-- **Tested with**: Spring Framework 6.2.12 (Spring Boot 3.5.7)
-- **Compatible with**: Spring Framework 6.x+ and future releases (Spring Boot 3.x+ and future releases)
-- **Minimum suggested**: Spring Framework 6.0.0+ (Spring Boot 3.0.0+ if using Boot)
+- **Tested with**: Spring Framework 7.0.10 (Spring Boot 4.1.2)
+- **Compatible with**: Spring Framework 7.x (Spring Boot 4.x)
+- **Requires**: Java 25 or higher
 
-The SDK uses `provided` scope and standard Spring APIs, so it should work with any Spring Framework 6.x+ version (or Spring Boot 3.x+). You have flexibility to upgrade Spring independently of the SDK.
-
-**Netty security patches:** the SDK declares Netty 4.1.139.Final or later, which fixes a hostname verification bypass on Java 25+ (AIKIDO-2026-421700) and several request-smuggling issues in the HTTP codecs. Spring Boot's dependency management takes precedence over the SDK's, and Boot 3.5.16 still manages Netty 4.1.135. Until you move to a Boot release that manages a patched Netty, override the version in your own build. How depends on how your build consumes Boot:
-
-*Maven with `spring-boot-starter-parent`* - set the property that the parent uses:
-
-```xml
-<properties>
-    <netty.version>4.1.139.Final</netty.version>
-</properties>
-```
-
-*Maven with `spring-boot-dependencies` imported in `dependencyManagement`* - an imported BOM resolves its own properties, so the property above has no effect. Import the Netty BOM **before** the Boot BOM instead; the first import wins:
-
-```xml
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-bom</artifactId>
-            <version>4.1.139.Final</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-dependencies</artifactId>
-            <version>${spring-boot.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-```
-
-*Gradle with the `io.spring.dependency-management` plugin* - set the property the plugin reads:
-
-```groovy
-ext['netty.version'] = '4.1.139.Final'
-```
-
-*Gradle with `platform(...)`* - add the Netty BOM as a platform; Gradle resolves to the highest version across platforms:
-
-```groovy
-implementation platform("io.netty:netty-bom:4.1.139.Final")
-```
-
-Confirm the result with `mvn dependency:tree -Dincludes=io.netty` or `gradle dependencies --configuration runtimeClasspath`; every `io.netty` artefact should show 4.1.139.Final.
+**Netty:** the SDK builds against the Netty release your Spring Boot version manages (Boot 4.1.2 manages Netty 4.2.19.Final), so there is no separate Netty version to override. Keep Spring Boot on a current patch release to pick up Netty security fixes.
 
 ## Quick Start
 
@@ -1090,8 +1045,9 @@ The Plain Java SDK has minimal runtime dependencies:
 The Spring SDK uses `provided` scope for Spring dependencies - you must provide compatible Spring Framework dependencies in your application.
 
 **Provided (required in your application):**
-- Spring Boot 3.x / Spring Framework 6.x
+- Spring Boot 4.x / Spring Framework 7.x
 - Spring WebFlux
+- Jackson 3 (`tools.jackson`)
 - Reactor
 - Netty
 
@@ -1105,7 +1061,7 @@ Exact versions are declared in each module's `pom.xml`. Use `mvn dependency:tree
 
 ## Support
 
-- **Documentation**: See [CLAUDE.md](./CLAUDE.md) for repository-level technical details, or module-specific CLAUDE.md files in `java-v2/` and `java-spring6/` directories
+- **Documentation**: See [CLAUDE.md](./CLAUDE.md) for repository-level technical details, or [java-v2/CLAUDE.md](./java-v2/CLAUDE.md) for the Plain Java SDK
 - **Issues**: [GitHub Issues](https://github.com/BlinkPay/Blink-Payments-API-Client-Java/issues)
 - **Contact**: sysadmin@blinkpay.co.nz
 
@@ -1124,6 +1080,8 @@ Both SDK versions include comprehensive test suites covering all API operations 
 #### Running Spring SDK Tests
 
 The Spring SDK uses `provided` scope for Spring dependencies, so tests will use the Spring dependencies declared in `test` scope (`spring-boot-starter-test`). No additional configuration is needed.
+
+The Spring SDK compiles to Java 25, so build it on JDK 25. On JDK 21 build only the Plain Java SDK: `mvn -B -ntp -pl .,java-v2 test`.
 
 To run tests, you need to set the required environment variables:
 
@@ -1156,10 +1114,10 @@ BLINKPAY_CLIENT_ID="your-client-id" BLINKPAY_CLIENT_SECRET="your-client-secret" 
 BLINKPAY_CLIENT_ID="your-client-id" BLINKPAY_CLIENT_SECRET="your-client-secret" mvn -B -ntp verify -Dgpg.skip
 ```
 
-For the Spring SDK module specifically, navigate to the `java-spring6` directory first:
+For the Spring SDK module specifically, navigate to the `java-spring7` directory first:
 
 ```bash
-cd java-spring6
+cd java-spring7
 BLINKPAY_CLIENT_ID="your-client-id" BLINKPAY_CLIENT_SECRET="your-client-secret" mvn -B -ntp verify -Dgpg.skip
 ```
 

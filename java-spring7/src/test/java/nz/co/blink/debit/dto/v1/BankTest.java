@@ -1,6 +1,6 @@
 package nz.co.blink.debit.dto.v1;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import nz.co.blink.debit.exception.BlinkInvalidValueException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
