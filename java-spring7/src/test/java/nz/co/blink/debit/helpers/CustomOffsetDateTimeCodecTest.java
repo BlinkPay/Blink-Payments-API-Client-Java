@@ -70,7 +70,7 @@ class CustomOffsetDateTimeCodecTest {
         useExchange(request -> {
             MockClientHttpRequest captured = new MockClientHttpRequest(request.method(), request.url());
             return request.writeTo(captured, ExchangeStrategies.withDefaults())
-                    .then(captured.getBodyAsString())
+                    .then(Mono.defer(captured::getBodyAsString))
                     .doOnNext(sentBody::set)
                     .thenReturn(jsonResponse(HttpStatus.CREATED, "{\"consent_id\":\"" + CONSENT_ID + "\"}"));
         });
