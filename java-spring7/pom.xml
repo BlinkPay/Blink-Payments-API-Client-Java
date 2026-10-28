@@ -172,15 +172,14 @@
 
     <build>
         <plugins>
-            <!-- Publish the resolved versions, not the Boot BOM import, so the released POM is self-contained -->
+            <!-- Publish the resolved versions, not the Boot BOM import, so the released POM is self-contained.
+                 The ossrh mode does this; combining the parent's resolveCiFriendliesOnly mode with pomElements
+                 trips a flatten-maven-plugin 1.8.0 NPE whenever this module is built without the parent -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <configuration>
-                    <pomElements>
-                        <dependencies>flatten</dependencies>
-                        <dependencyManagement>remove</dependencyManagement>
-                    </pomElements>
+                    <flattenMode>ossrh</flattenMode>
                 </configuration>
             </plugin>
             <plugin>
