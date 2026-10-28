@@ -77,6 +77,7 @@ class CustomOffsetDateTimeCodecTest {
         EnduringConsentRequest request = new EnduringConsentRequest()
                 .flow(new AuthFlow().detail(new RedirectFlow().bank(Bank.PNZ).redirectUri(REDIRECT_URI)))
                 .maximumAmountPeriod(new Amount().currency(Amount.CurrencyEnum.NZD).total("50.00"))
+                .maximumAmountPayment(new Amount().currency(Amount.CurrencyEnum.NZD).total("50.00"))
                 .period(Period.MONTHLY)
                 .fromTimestamp(OffsetDateTime.of(2026, 10, 28, 19, 0, 0, 123_000_000, ZoneOffset.ofHours(13)))
                 .expiryTimestamp(OffsetDateTime.of(2027, 10, 28, 6, 30, 0, 0, ZoneOffset.UTC));
