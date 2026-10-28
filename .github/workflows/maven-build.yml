@@ -41,7 +41,7 @@ jobs:
         if: ${{ matrix.java == '25' }}
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.5.11
-          for module in java-v2 java-spring6; do
+          for module in java-v2 java-spring7; do
             reportgenerator \
               -reports:$module/target/site/jacoco/jacoco.xml \
               -sourcedirs:$module/src/main/java \
@@ -85,7 +85,7 @@ jobs:
           region: au
           file-paths: |
             java-v2/target/site/lcov/lcov.info
-            java-spring6/target/site/lcov/lcov.info
+            java-spring7/target/site/lcov/lcov.info
 
   integration:
     if: ${{ vars.JOB_ENABLED == 'true' }}
@@ -105,8 +105,8 @@ jobs:
           architecture: x64
           cache: maven
 
-      - name: Run Spring SDK (java-spring6) integration tests
-        run: cd java-spring6 && mvn -B -ntp verify -Dgpg.skip
+      - name: Run Spring SDK (java-spring7) integration tests
+        run: cd java-spring7 && mvn -B -ntp verify -Dgpg.skip
         env:
           BLINKPAY_DEBIT_URL: ${{ vars.DEBIT_URL }}
           BLINKPAY_CLIENT_ID: ${{ vars.CLIENT_ID }}
@@ -153,18 +153,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Run Sonar on blink-debit-api-client-java-spring6 to inspect code
+      - name: Run Sonar on blink-debit-api-client-java-spring7 to inspect code
         run: >
           SPRING_PROFILES_ACTIVE=test
-          mvn -B -ntp -pl .,java-spring6 verify
+          mvn -B -ntp -pl .,java-spring7 verify
           org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar
           -DskipITs
           -Dgpg.skip
-          -Dsonar.projectKey=blink-debit-api-client-java-spring6
+          -Dsonar.projectKey=blink-debit-api-client-java-spring7
           -Dsonar.organization=blinkpay
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.junit.reportPaths=target/surefire-reports
-          -Dsonar.projectName=blink-debit-api-client-java-spring6
+          -Dsonar.projectName=blink-debit-api-client-java-spring7
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
