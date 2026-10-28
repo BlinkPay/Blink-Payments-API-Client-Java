@@ -119,7 +119,7 @@ Use `blink-debit-api-client-java-spring7` for:
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
-    <version>5.0.3</version> <!-- Spring Cloud 2025.1; move to 2026.0 (circuit breaker 5.1.x), the Boot 4.1 train, once it is GA -->
+    <version>5.0.3</version> <!-- Or compatible version -->
 </dependency>
 ```
 

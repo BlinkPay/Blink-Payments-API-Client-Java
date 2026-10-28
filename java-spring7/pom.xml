@@ -115,9 +115,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- The DTOs use the Jackson 2 annotations, which Jackson 3 kept. Declared because java-jwt's runtime
-             Jackson 2 is the nearer path, so they would otherwise be off the compile classpath. Jackson 3
-             databind itself comes from spring-boot-starter-webflux. -->
+        <!-- Used by the DTOs. Without it java-jwt's nearer runtime-scoped path keeps it off the compile classpath -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
@@ -174,8 +172,7 @@
 
     <build>
         <plugins>
-            <!-- Publish resolved versions rather than the Boot BOM import: Gradle applies a BOM imported by a
-                 dependency's POM to the consumer's whole graph -->
+            <!-- Publish the resolved versions, not the Boot BOM import, so the released POM is self-contained -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
