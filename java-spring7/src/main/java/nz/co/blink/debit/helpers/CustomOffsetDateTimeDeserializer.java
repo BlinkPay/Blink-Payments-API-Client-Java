@@ -21,23 +21,33 @@
  */
 package nz.co.blink.debit.helpers;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * The custom {@link OffsetDateTime} {@link JsonSerializer}.
+ * The custom {@link OffsetDateTime} {@link ValueDeserializer}.
  *
  * @author Rey Vincent Babilonia
  */
-public class CustomOffsetDateTimeSerializer extends JsonSerializer<OffsetDateTime> {
+public class CustomOffsetDateTimeDeserializer extends ValueDeserializer<OffsetDateTime> {
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @Override
-    public void serialize(OffsetDateTime offsetDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeString(offsetDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+    public OffsetDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        String date = jsonParser.getString();
+
+        if (date.contains("+") && !date.endsWith("Z")) {
+            String dateTime = date.substring(0, date.indexOf("+"));
+            String offset = date.substring(date.indexOf("+")).replace(".", ":");
+            String dateTimeOffset = dateTime + offset;
+            return OffsetDateTime.parse(dateTimeOffset, DATE_TIME_FORMATTER);
+        }
+
+        return OffsetDateTime.parse(date, DATE_TIME_FORMATTER);
     }
 }
