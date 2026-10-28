@@ -319,7 +319,7 @@ Thrown for invalid input parameters:
 
 ### Integration Tests
 
-**Coverage Summary**: **50 integration tests** across **8 test classes** (62.5% coverage compared to java-spring6 with 80 tests) *updated 2025-11-13*
+**Coverage Summary**: **50 integration tests** across **8 test classes** (62.5% coverage compared to java-spring7 with 80 tests) *updated 2025-11-13*
 
 **Phase 1 Improvements** ✅:
 - Added OAuthApiClientIntegrationTest (1 test)
@@ -349,7 +349,7 @@ Thrown for invalid input parameters:
 2. **MetaApiClientIntegrationTest** (2 tests)
    - Get bank metadata
    - Get metadata with custom request ID
-   - **Status**: ✅ Enhanced coverage (exceeds java-spring6)
+   - **Status**: ✅ Enhanced coverage (exceeds java-spring7)
 
 3. **SingleConsentsApiClientIntegrationTest** (**9 tests** - *improved*)
    - Create single consent with redirect flow
@@ -384,7 +384,7 @@ Thrown for invalid input parameters:
    - Full lifecycle testing
    - **Status**: ✅ 64.3% coverage (redirect + gateway flow, error handling complete)
 
-6. **PaymentsApiClientIntegrationTest** (**8 tests** - *improved, exceeds java-spring6*)
+6. **PaymentsApiClientIntegrationTest** (**8 tests** - *improved, exceeds java-spring7*)
    - Create payment for single consent (decoupled flow)
    - Get payment for single consent
    - Create payment for enduring consent (decoupled flow)
@@ -393,7 +393,7 @@ Thrown for invalid input parameters:
    - Create with null request validation *(Phase 1)*
    - Get with null ID validation *(Phase 1)*
    - Retry logic for sandbox authorization (up to 10 attempts)
-   - **Status**: ✅ 160% coverage (exceeds java-spring6)
+   - **Status**: ✅ 160% coverage (exceeds java-spring7)
 
 7. **RefundsApiClientIntegrationTest** (**6 tests** - *improved*)
    - Create account number refund for single consent
@@ -410,7 +410,7 @@ Thrown for invalid input parameters:
    - Validate JWT format (starts with "ey")
    - Validate expiry (3600 seconds)
    - Validate scopes
-   - **Status**: ✅ 100% coverage (complete parity with java-spring6)
+   - **Status**: ✅ 100% coverage (complete parity with java-spring7)
 
 **Test Patterns**:
 
@@ -487,7 +487,7 @@ static void tearDown() {
 - **Gateway Flow**: Single/Enduring consents, Quick payments *(Phase 1 complete)*
 
 **Gap Analysis**: See `GAP_ANALYSIS.md` for:
-- Detailed comparison with java-spring6 test coverage
+- Detailed comparison with java-spring7 test coverage
 - ✅ **Phase 1 Complete**: OAuth, Gateway flow, Error scenarios (13 tests)
 - Missing test categories: Decoupled flow for consents, validation for enduring consents
 - Prioritized recommendations for Phase 2
