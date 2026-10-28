@@ -119,7 +119,7 @@ Use `blink-debit-api-client-java-spring7` for:
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
-    <version>5.0.3</version> <!-- Or compatible version -->
+    <version>5.0.3</version> <!-- Spring Cloud 2025.1; move to 2026.0 (circuit breaker 5.1.x), the Boot 4.1 train, once it is GA -->
 </dependency>
 ```
 
@@ -1061,7 +1061,7 @@ Exact versions are declared in each module's `pom.xml`. Use `mvn dependency:tree
 
 ## Support
 
-- **Documentation**: See [CLAUDE.md](./CLAUDE.md) for repository-level technical details, or module-specific CLAUDE.md files in `java-v2/` and `java-spring7/` directories
+- **Documentation**: See [CLAUDE.md](./CLAUDE.md) for repository-level technical details, or [java-v2/CLAUDE.md](./java-v2/CLAUDE.md) for the Plain Java SDK
 - **Issues**: [GitHub Issues](https://github.com/BlinkPay/Blink-Payments-API-Client-Java/issues)
 - **Contact**: sysadmin@blinkpay.co.nz
 
