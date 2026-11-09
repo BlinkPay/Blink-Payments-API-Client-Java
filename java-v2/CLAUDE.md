@@ -64,7 +64,7 @@ Entry point for all API operations. Implements `AutoCloseable`.
 
 **Responsibilities**:
 - Creates and manages HttpClient instance
-- Initializes ObjectMapper with JavaTimeModule
+- Initializes ObjectMapper with JavaTimeModule; unknown response properties are ignored (`FAIL_ON_UNKNOWN_PROPERTIES` off), matching the Spring SDK
 - Creates AccessTokenManager for OAuth2
 - Instantiates all API clients
 - Provides getter methods for API access

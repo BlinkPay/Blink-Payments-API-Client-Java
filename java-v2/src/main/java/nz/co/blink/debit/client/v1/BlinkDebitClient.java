@@ -1,5 +1,6 @@
 package nz.co.blink.debit.client.v1;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -94,6 +95,8 @@ public class BlinkDebitClient implements AutoCloseable {
         this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        // The API adds response fields without a version bump; the Spring SDK already ignores unknown ones.
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         // Create OAuth client and token manager
         this.oauthApi = new OAuthApiClient(httpClient, config, objectMapper);
