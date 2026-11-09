@@ -152,8 +152,7 @@ public class Amount {
 
   /**
    * The total amount charged to the customer, inclusive of any surcharge (total + surcharge). On an enduring
-   * consent's maxima it is the raised maximum. Read-only: returned by Blink, and never serialised into a request
-   * (Blink rejects it on consent requests).
+   * consent's maxima it is the raised maximum. Read-only: returned by Blink, and never serialised into a request.
    * @return totalCharge
    */
   

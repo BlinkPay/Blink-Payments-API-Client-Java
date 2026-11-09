@@ -483,10 +483,7 @@ public class Consent {
       joiner.add(String.format(Locale.ROOT, "%scard_network%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCardNetwork()))));
     }
 
-    // add `surcharge_options` to the URL query string
-    if (getSurchargeOptions() != null) {
-      joiner.add(getSurchargeOptions().toUrlQueryString(prefix + "surcharge_options" + suffix));
-    }
+    // surcharge_options is read-only and deliberately left out
 
     return joiner.toString();
   }
