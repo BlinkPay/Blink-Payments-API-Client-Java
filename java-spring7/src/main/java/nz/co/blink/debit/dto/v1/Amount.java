@@ -47,7 +47,6 @@ public class Amount {
     @JsonProperty("total")
     private String total = null;
 
-    // Write-only: Blink returns these but rejects them on consent requests, and Amount is shared with requests.
     @JsonProperty(value = "surcharge", access = JsonProperty.Access.WRITE_ONLY)
     private String surcharge = null;
 
