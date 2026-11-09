@@ -271,6 +271,13 @@ On `Consent`, `Payment` and `Refund`, `statusUpdatedTimestamp` is `required = fa
 changes, and the generator's `USE_DEFAULTS` behaves like `ALWAYS` with `BlinkDebitClient`'s mapper, which
 would write it back as an explicit `null`. Keep `NON_NULL` if these DTOs are regenerated.
 
+#### 5. Write-only `surcharge` / `total_charge` on `Amount`
+
+Both carry `access = JsonProperty.Access.WRITE_ONLY`: read from responses, never serialised. `Amount` is
+shared with request DTOs and Blink rejects these fields on consent requests, so a response amount reused in
+a request must not carry them. Keep the access mode if `Amount` is regenerated (the generator emits plain
+read-only properties, which Jackson would still serialise).
+
 ### Base Classes
 
 **ApiClient.java**: Base class providing shared utilities for generated DTOs.
