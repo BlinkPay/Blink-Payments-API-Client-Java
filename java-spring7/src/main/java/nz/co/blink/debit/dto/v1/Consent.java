@@ -116,6 +116,9 @@ public class Consent {
     @JsonProperty("card_network")
     private CardNetwork cardNetwork = null;
 
+    @JsonProperty("surcharge_options")
+    private SurchargeOptions surchargeOptions = null;
+
     public Consent consentId(UUID consentId) {
         this.consentId = consentId;
         return this;
@@ -261,6 +264,27 @@ public class Consent {
         this.cardNetwork = cardNetwork;
     }
 
+    public Consent surchargeOptions(SurchargeOptions surchargeOptions) {
+        this.surchargeOptions = surchargeOptions;
+        return this;
+    }
+
+    /**
+     * A preview of the surcharge each payment method would add, returned while a gateway consent awaits submission.
+     * Read-only: returned by Blink.
+     *
+     * @return surchargeOptions
+     **/
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "A preview of the surcharge each payment method would add, returned while a gateway consent awaits submission.")
+    @Valid
+    public SurchargeOptions getSurchargeOptions() {
+        return surchargeOptions;
+    }
+
+    public void setSurchargeOptions(SurchargeOptions surchargeOptions) {
+        this.surchargeOptions = surchargeOptions;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -276,12 +300,13 @@ public class Consent {
                && Objects.equals(this.statusUpdatedTimestamp, consent.statusUpdatedTimestamp)
                && Objects.equals(this.detail, consent.detail)
                && Objects.equals(this.payments, consent.payments)
-               && Objects.equals(this.cardNetwork, consent.cardNetwork);
+               && Objects.equals(this.cardNetwork, consent.cardNetwork)
+               && Objects.equals(this.surchargeOptions, consent.surchargeOptions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(consentId, status, creationTimestamp, statusUpdatedTimestamp, detail, payments, cardNetwork);
+        return Objects.hash(consentId, status, creationTimestamp, statusUpdatedTimestamp, detail, payments, cardNetwork, surchargeOptions);
     }
 
     @Override
@@ -295,6 +320,7 @@ public class Consent {
         sb.append("    detail: ").append(toIndentedString(detail)).append("\n");
         sb.append("    payments: ").append(toIndentedString(payments)).append("\n");
         sb.append("    cardNetwork: ").append(toIndentedString(cardNetwork)).append("\n");
+        sb.append("    surchargeOptions: ").append(toIndentedString(surchargeOptions)).append("\n");
         sb.append("}");
         return sb.toString();
     }

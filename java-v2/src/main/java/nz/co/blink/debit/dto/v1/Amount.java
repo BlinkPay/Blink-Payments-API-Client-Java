@@ -37,6 +37,8 @@ import javax.validation.Valid;
  */
 @JsonPropertyOrder({
   Amount.JSON_PROPERTY_TOTAL,
+  Amount.JSON_PROPERTY_SURCHARGE,
+  Amount.JSON_PROPERTY_TOTAL_CHARGE,
   Amount.JSON_PROPERTY_CURRENCY
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.17.0")
@@ -44,6 +46,14 @@ public class Amount {
   public static final String JSON_PROPERTY_TOTAL = "total";
   
   private String total;
+
+  public static final String JSON_PROPERTY_SURCHARGE = "surcharge";
+  
+  private String surcharge;
+
+  public static final String JSON_PROPERTY_TOTAL_CHARGE = "total_charge";
+  
+  private String totalCharge;
 
   /**
    * The currency. Only NZD is supported.
@@ -111,6 +121,55 @@ public class Amount {
   }
 
 
+  public Amount surcharge( String surcharge) {
+    this.surcharge = surcharge;
+    return this;
+  }
+
+  /**
+   * The surcharge applied to this payment, where surcharging applies. Read-only: returned by Blink, and never
+   * serialised into a request (Blink rejects it on consent requests).
+   * @return surcharge
+   */
+  
+ @Pattern(regexp="^\\d{1,13}\\.\\d{1,2}$")
+  @JsonProperty(value = JSON_PROPERTY_SURCHARGE, required = false, access = JsonProperty.Access.WRITE_ONLY)
+  public String getSurcharge() {
+    return surcharge;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_SURCHARGE, required = false, access = JsonProperty.Access.WRITE_ONLY)
+  public void setSurcharge( String surcharge) {
+    this.surcharge = surcharge;
+  }
+
+
+  public Amount totalCharge( String totalCharge) {
+    this.totalCharge = totalCharge;
+    return this;
+  }
+
+  /**
+   * The total amount charged to the customer, inclusive of any surcharge (total + surcharge). On an enduring
+   * consent's maxima it is the raised maximum. Read-only: returned by Blink, and never serialised into a request
+   * (Blink rejects it on consent requests).
+   * @return totalCharge
+   */
+  
+ @Pattern(regexp="^\\d{1,13}\\.\\d{1,2}$")
+  @JsonProperty(value = JSON_PROPERTY_TOTAL_CHARGE, required = false, access = JsonProperty.Access.WRITE_ONLY)
+  public String getTotalCharge() {
+    return totalCharge;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TOTAL_CHARGE, required = false, access = JsonProperty.Access.WRITE_ONLY)
+  public void setTotalCharge( String totalCharge) {
+    this.totalCharge = totalCharge;
+  }
+
+
   public Amount currency( CurrencyEnum currency) {
     this.currency = currency;
     return this;
@@ -150,12 +209,14 @@ public class Amount {
     }
     Amount amount = (Amount) o;
     return Objects.equals(this.total, amount.total) &&
+        Objects.equals(this.surcharge, amount.surcharge) &&
+        Objects.equals(this.totalCharge, amount.totalCharge) &&
         Objects.equals(this.currency, amount.currency);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(total, currency);
+    return Objects.hash(total, surcharge, totalCharge, currency);
   }
 
   @Override
@@ -163,6 +224,8 @@ public class Amount {
     StringBuilder sb = new StringBuilder();
     sb.append("class Amount {\n");
     sb.append("    total: ").append(toIndentedString(total)).append("\n");
+    sb.append("    surcharge: ").append(toIndentedString(surcharge)).append("\n");
+    sb.append("    totalCharge: ").append(toIndentedString(totalCharge)).append("\n");
     sb.append("    currency: ").append(toIndentedString(currency)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -215,6 +278,8 @@ public class Amount {
     if (getTotal() != null) {
       joiner.add(String.format(Locale.ROOT, "%stotal%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getTotal()))));
     }
+
+    // surcharge and total_charge are read-only and deliberately left out
 
     // add `currency` to the URL query string
     if (getCurrency() != null) {

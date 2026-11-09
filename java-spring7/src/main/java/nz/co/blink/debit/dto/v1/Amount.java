@@ -47,6 +47,13 @@ public class Amount {
     @JsonProperty("total")
     private String total = null;
 
+    // Write-only: Blink returns these but rejects them on consent requests, and Amount is shared with requests.
+    @JsonProperty(value = "surcharge", access = JsonProperty.Access.WRITE_ONLY)
+    private String surcharge = null;
+
+    @JsonProperty(value = "total_charge", access = JsonProperty.Access.WRITE_ONLY)
+    private String totalCharge = null;
+
     /**
      * The currency. Only NZD is supported.
      */
@@ -98,6 +105,48 @@ public class Amount {
         this.total = total;
     }
 
+    public Amount surcharge(String surcharge) {
+        this.surcharge = surcharge;
+        return this;
+    }
+
+    /**
+     * The surcharge applied to this payment, where surcharging applies. Read-only: returned by Blink and never
+     * serialised into a request.
+     *
+     * @return surcharge
+     **/
+    @Schema(example = "0.68", accessMode = Schema.AccessMode.READ_ONLY, description = "The surcharge applied to this payment, where surcharging applies.")
+    @Pattern(regexp = "^\\d{1,13}\\.\\d{1,2}$")
+    public String getSurcharge() {
+        return surcharge;
+    }
+
+    public void setSurcharge(String surcharge) {
+        this.surcharge = surcharge;
+    }
+
+    public Amount totalCharge(String totalCharge) {
+        this.totalCharge = totalCharge;
+        return this;
+    }
+
+    /**
+     * The total amount charged to the customer, inclusive of any surcharge (total + surcharge). On an enduring
+     * consent's maxima it is the raised maximum. Read-only: returned by Blink and never serialised into a request.
+     *
+     * @return totalCharge
+     **/
+    @Schema(example = "100.68", accessMode = Schema.AccessMode.READ_ONLY, description = "The total amount charged to the customer, inclusive of any surcharge (total + surcharge).")
+    @Pattern(regexp = "^\\d{1,13}\\.\\d{1,2}$")
+    public String getTotalCharge() {
+        return totalCharge;
+    }
+
+    public void setTotalCharge(String totalCharge) {
+        this.totalCharge = totalCharge;
+    }
+
     public Amount currency(CurrencyEnum currency) {
         this.currency = currency;
         return this;
@@ -128,12 +177,14 @@ public class Amount {
         }
         Amount amount = (Amount) o;
         return Objects.equals(this.total, amount.total)
+                && Objects.equals(this.surcharge, amount.surcharge)
+                && Objects.equals(this.totalCharge, amount.totalCharge)
                 && Objects.equals(this.currency, amount.currency);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(total, currency);
+        return Objects.hash(total, surcharge, totalCharge, currency);
     }
 
     @Override
@@ -141,6 +192,8 @@ public class Amount {
         StringBuilder sb = new StringBuilder();
         sb.append("class Amount {\n");
         sb.append("    total: ").append(toIndentedString(total)).append("\n");
+        sb.append("    surcharge: ").append(toIndentedString(surcharge)).append("\n");
+        sb.append("    totalCharge: ").append(toIndentedString(totalCharge)).append("\n");
         sb.append("    currency: ").append(toIndentedString(currency)).append("\n");
         sb.append("}");
         return sb.toString();
