@@ -29,13 +29,14 @@
 9. [Polling and Timeout Behavior](#polling-and-timeout-behavior)
 10. [Correlation ID / Request ID](#correlation-id--request-id)
 11. [Idempotency](#idempotency)
-12. [Full Examples](#full-examples)
-13. [Individual API Call Examples](#individual-api-call-examples)
-14. [Handling Payment Settlement](#handling-payment-settlement)
-15. [Dependencies](#dependencies)
-16. [Support](#support)
-17. [Contributing](#contributing)
-18. [Running Tests](#running-tests)
+12. [Surcharging](#surcharging)
+13. [Full Examples](#full-examples)
+14. [Individual API Call Examples](#individual-api-call-examples)
+15. [Handling Payment Settlement](#handling-payment-settlement)
+16. [Dependencies](#dependencies)
+17. [Support](#support)
+18. [Contributing](#contributing)
+19. [Running Tests](#running-tests)
 
 ## Introduction
 This SDK allows merchants with Java-based e-commerce sites to integrate with **Blink PayNow** (for one-off payments) and **Blink AutoPay** (for recurring payments).
@@ -508,6 +509,32 @@ send a new key and so create a second record.
 
 To make your own retries safe, hold the key and pass the **same** one on every attempt. Refunds
 accept a caller-supplied key; see [Refund idempotency](#refund-idempotency).
+
+## Surcharging
+Where surcharging applies, an amount on a consent, quick payment or payment carries `surcharge` and
+`total_charge` (total + surcharge, the amount charged to the customer). On a surcharged enduring
+consent, `maximum_amount_payment` and `maximum_amount_period` carry them too, with `total_charge` as the
+raised maximum. Both fields are `null` when surcharging does not apply; a zero card surcharge is also
+omitted, while a zero bank surcharge is returned as `"0.00"`.
+
+While a gateway consent or quick payment is in `GatewayAwaitingSubmission` status, `surcharge_options`
+gives a best-effort preview per payment method (`bank`, and `card` only when the consent can be paid by
+card), replaced by the amount's `surcharge` once the customer chooses a method.
+
+These fields are read-only: the SDK reads them from responses and never sends them, even when an
+`Amount` from a response is reused in a request.
+```java
+Consent consent = client.getSingleConsent(consentId);
+Amount amount = ((SingleConsentRequest) consent.getDetail()).getAmount();
+String surcharge = amount.getSurcharge();     // e.g. "0.68"
+String totalCharge = amount.getTotalCharge(); // e.g. "100.68"
+
+SurchargeOptions options = consent.getSurchargeOptions(); // null unless awaiting gateway submission
+if (options != null && options.getCard() != null) {
+    String cardTotal = options.getCard().getTotalCharge();
+}
+```
+See [Surcharging](https://merchants.blinkpay.co.nz/docs/debit/guides/surcharging) for when each field is populated.
 
 ## Full Examples
 

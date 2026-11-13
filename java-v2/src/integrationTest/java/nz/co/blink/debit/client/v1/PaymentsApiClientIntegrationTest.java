@@ -171,8 +171,10 @@ class PaymentsApiClientIntegrationTest {
         PaymentRequest paymentRequest = payment.getDetail();
         assertThat(paymentRequest)
                 .isNotNull()
-                .extracting(PaymentRequest::getConsentId, PaymentRequest::getPcr, PaymentRequest::getAmount)
-                .containsExactly(consentId, null, new Amount().currency(Amount.CurrencyEnum.NZD).total("50.00"));
+                .extracting(PaymentRequest::getConsentId, PaymentRequest::getPcr,
+                        paymentDetail -> paymentDetail.getAmount().getCurrency(),
+                        paymentDetail -> paymentDetail.getAmount().getTotal())
+                .containsExactly(consentId, null, Amount.CurrencyEnum.NZD, "50.00");
     }
 
     @Test

@@ -937,8 +937,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(payment.getStatusUpdatedTimestamp()).isNotNull();
         assertThat(payment.getDetail())
                 .isNotNull()
-                .extracting(PaymentRequest::getConsentId, PaymentRequest::getPcr, PaymentRequest::getAmount)
-                .containsExactly(consentId, null, new Amount().currency(Amount.CurrencyEnum.NZD).total("1.25"));
+                .extracting(PaymentRequest::getConsentId, PaymentRequest::getPcr,
+                        paymentDetail -> paymentDetail.getAmount().getCurrency(),
+                        paymentDetail -> paymentDetail.getAmount().getTotal())
+                .containsExactly(consentId, null, Amount.CurrencyEnum.NZD, "1.25");
         assertThat(payment.getRefunds()).isEmpty();
     }
 
@@ -1036,8 +1038,10 @@ class BlinkDebitClientIntegrationTest {
         assertThat(payment.getStatusUpdatedTimestamp()).isNotNull();
         assertThat(payment.getDetail())
                 .isNotNull()
-                .extracting(PaymentRequest::getConsentId, PaymentRequest::getPcr, PaymentRequest::getAmount)
-                .containsExactly(consentId, null, new Amount().currency(Amount.CurrencyEnum.NZD).total("1.25"));
+                .extracting(PaymentRequest::getConsentId, PaymentRequest::getPcr,
+                        paymentDetail -> paymentDetail.getAmount().getCurrency(),
+                        paymentDetail -> paymentDetail.getAmount().getTotal())
+                .containsExactly(consentId, null, Amount.CurrencyEnum.NZD, "1.25");
         assertThat(payment.getRefunds()).isEmpty();
     }
 }

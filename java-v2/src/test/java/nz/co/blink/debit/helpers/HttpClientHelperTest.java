@@ -2,7 +2,7 @@ package nz.co.blink.debit.helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import nz.co.blink.debit.client.v1.BlinkDebitClient;
 import nz.co.blink.debit.config.BlinkDebitConfig;
 import nz.co.blink.debit.exception.BlinkInvalidValueException;
 import nz.co.blink.debit.exception.BlinkServiceException;
@@ -60,8 +60,7 @@ class HttpClientHelperTest {
                 .timeout(Duration.ofSeconds(30))
                 .build();
 
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper = BlinkDebitClient.newObjectMapper();
 
         httpHelper = new HttpClientHelper(httpClient, config, objectMapper, tokenManager);
 

@@ -34,6 +34,7 @@ import java.util.UUID;
 import nz.co.blink.debit.dto.v1.CardNetwork;
 import nz.co.blink.debit.dto.v1.ConsentDetail;
 import nz.co.blink.debit.dto.v1.Payment;
+import nz.co.blink.debit.dto.v1.SurchargeOptions;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import javax.validation.constraints.*;
 import javax.validation.Valid;
@@ -49,7 +50,8 @@ import javax.validation.Valid;
   Consent.JSON_PROPERTY_STATUS_UPDATED_TIMESTAMP,
   Consent.JSON_PROPERTY_DETAIL,
   Consent.JSON_PROPERTY_PAYMENTS,
-  Consent.JSON_PROPERTY_CARD_NETWORK
+  Consent.JSON_PROPERTY_CARD_NETWORK,
+  Consent.JSON_PROPERTY_SURCHARGE_OPTIONS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.17.0")
 public class Consent {
@@ -125,6 +127,10 @@ public class Consent {
   public static final String JSON_PROPERTY_CARD_NETWORK = "card_network";
   
   private CardNetwork cardNetwork;
+
+  public static final String JSON_PROPERTY_SURCHARGE_OPTIONS = "surcharge_options";
+  
+  private SurchargeOptions surchargeOptions;
 
   public Consent() { 
   }
@@ -323,6 +329,33 @@ public class Consent {
   }
 
 
+  public Consent surchargeOptions( SurchargeOptions surchargeOptions) {
+    this.surchargeOptions = surchargeOptions;
+    return this;
+  }
+
+  /**
+   * A preview of the surcharge each payment method would add, returned while a gateway consent awaits submission.
+   * Read-only: returned by Blink.
+   * @return surchargeOptions
+   */
+  
+  @Valid
+
+  @JsonProperty(value = JSON_PROPERTY_SURCHARGE_OPTIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.NON_NULL)
+  public SurchargeOptions getSurchargeOptions() {
+    return surchargeOptions;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_SURCHARGE_OPTIONS, required = false)
+  @JsonInclude(value = JsonInclude.Include.NON_NULL)
+  public void setSurchargeOptions( SurchargeOptions surchargeOptions) {
+    this.surchargeOptions = surchargeOptions;
+  }
+
+
   /**
    * Return true if this consent object is equal to o.
    */
@@ -341,12 +374,13 @@ public class Consent {
         Objects.equals(this.statusUpdatedTimestamp, consent.statusUpdatedTimestamp) &&
         Objects.equals(this.detail, consent.detail) &&
         Objects.equals(this.payments, consent.payments) &&
-        Objects.equals(this.cardNetwork, consent.cardNetwork);
+        Objects.equals(this.cardNetwork, consent.cardNetwork) &&
+        Objects.equals(this.surchargeOptions, consent.surchargeOptions);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(consentId, status, creationTimestamp, statusUpdatedTimestamp, detail, payments, cardNetwork);
+    return Objects.hash(consentId, status, creationTimestamp, statusUpdatedTimestamp, detail, payments, cardNetwork, surchargeOptions);
   }
 
   @Override
@@ -360,6 +394,7 @@ public class Consent {
     sb.append("    detail: ").append(toIndentedString(detail)).append("\n");
     sb.append("    payments: ").append(toIndentedString(payments)).append("\n");
     sb.append("    cardNetwork: ").append(toIndentedString(cardNetwork)).append("\n");
+    sb.append("    surchargeOptions: ").append(toIndentedString(surchargeOptions)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -447,6 +482,8 @@ public class Consent {
     if (getCardNetwork() != null) {
       joiner.add(String.format(Locale.ROOT, "%scard_network%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCardNetwork()))));
     }
+
+    // surcharge_options is read-only and deliberately left out
 
     return joiner.toString();
   }

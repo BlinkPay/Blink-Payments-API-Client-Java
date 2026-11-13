@@ -1,5 +1,6 @@
 package nz.co.blink.debit.client.v1;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -77,6 +78,20 @@ public class BlinkDebitClient implements AutoCloseable {
     }
 
     /**
+     * Create the ObjectMapper the client uses to serialise requests and deserialise responses.
+     *
+     * @return a new, fully configured ObjectMapper
+     */
+    public static ObjectMapper newObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        // The API adds response fields without a version bump.
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        return mapper;
+    }
+
+    /**
      * Create a client with the specified configuration.
      *
      * @param config the configuration
@@ -90,10 +105,7 @@ public class BlinkDebitClient implements AutoCloseable {
                 .connectTimeout(config.getTimeout())
                 .build();
 
-        // Create Jackson ObjectMapper
-        this.objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        this.objectMapper = newObjectMapper();
 
         // Create OAuth client and token manager
         this.oauthApi = new OAuthApiClient(httpClient, config, objectMapper);

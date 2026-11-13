@@ -64,7 +64,7 @@ Entry point for all API operations. Implements `AutoCloseable`.
 
 **Responsibilities**:
 - Creates and manages HttpClient instance
-- Initializes ObjectMapper with JavaTimeModule
+- Initializes ObjectMapper with JavaTimeModule; unknown response properties are ignored (`FAIL_ON_UNKNOWN_PROPERTIES` off), matching the Spring SDK
 - Creates AccessTokenManager for OAuth2
 - Instantiates all API clients
 - Provides getter methods for API access
@@ -270,6 +270,13 @@ On `Consent`, `Payment` and `Refund`, `statusUpdatedTimestamp` is `required = fa
 `@JsonInclude(NON_NULL)` on the getter and setter. The API omits the field until the status first
 changes, and the generator's `USE_DEFAULTS` behaves like `ALWAYS` with `BlinkDebitClient`'s mapper, which
 would write it back as an explicit `null`. Keep `NON_NULL` if these DTOs are regenerated.
+
+#### 5. Write-only `surcharge` / `total_charge` on `Amount`
+
+Both carry `access = JsonProperty.Access.WRITE_ONLY`: read from responses, never serialised. `Amount` is
+shared with request DTOs and Blink rejects these fields on consent requests, so a response amount reused in
+a request must not carry them. Keep the access mode if `Amount` is regenerated (the generator emits plain
+read-only properties, which Jackson would still serialise).
 
 ### Base Classes
 
